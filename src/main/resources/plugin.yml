@@ -1,0 +1,39 @@
+name: EithonTravelPad
+main: net.eithon.plugin.insanityrun.Plugin
+version: 0.1
+author: vanbrayne
+description: A Minecraft plugin for insanity run mini game
+depend: [EithonLibrary]
+commands:
+  eir:
+    description: Control jump pads
+    usage: /eir add | link | remove  | goto | list | join
+    permission-message: You don't have <permission>
+permissions:
+  eir.*:
+    description: Gives access to all eir commands
+    default: op
+    eir.add: true
+    eir.link: true
+    eir.remove: true
+    eir.list: true
+    eir.goto: true
+    eir.join: true
+  eir.add:
+    description: Access to /eir add command
+    default: op
+  eir.link:
+    description: Access to /eir link command
+    default: op
+  eir.remove:
+    description: Access to /eir remove command
+    default: op
+  eir.list:
+    description: Access to /eir list command
+    default: op
+  eir.goto:
+    description: Access to /eir goto command
+    default: op
+  eir.join:
+    description: Access to /eir join command
+    default: op

@@ -1,0 +1,49 @@
+#
+# Should we use Vault for economy? If false, runs will be free of charge.
+#
+UseVault: true
+
+#
+# After how long time should the player be kicked
+#
+IdleKickTime: 2
+
+#
+# Should we broadcast wins
+#
+BroadcastWins: true
+
+eithon:
+  UseMarkUpForMessages: 0
+  UseWrappingForMessages: 0
+  
+  #
+  # Debug level
+  #  0 = NONE (no debug messages)
+  #  1 = MAJOR (only major messages)
+  #  2 = MINOR (also minor messages)
+  #  3 = VERBOSE (all messages)
+  #
+  DebugLevel: 1
+
+commands:
+  #
+  # This command is dispatched when a player starts to fly in insanityrun mode.
+  # Parameters: <FlySpeed> (%.2f), <player name> (%s)
+  #
+  SetSpeed: speed fly %.2f %s
+  
+  #
+  # This command is dispatched when a player tries to fly when not supposed to.
+  # Parameters: -
+  #
+  StopFly: fly
+
+messages:
+
+  #
+  # Broadcasted message if BroadcastWins is true
+  # Parameters: <player name> (%s), <arena name> (%s), <?> (%s), <?> (%s), <time> (%s)
+  #
+  PlayerFinished: '%s finished %s with %s %s. Time: %s'
+

@@ -1,0 +1,302 @@
+package net.eithon.plugin.insanityrun.logic;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
+
+import net.eithon.library.core.PlayerCollection;
+import net.eithon.library.extensions.EithonPlugin;
+import net.eithon.library.json.FileContent;
+import net.eithon.library.plugin.Logger.DebugPrintLevel;
+import net.eithon.library.time.TimeMisc;
+import net.eithon.plugin.insanityrun.Config;
+
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scheduler.BukkitTask;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+public class Controller {
+	private PlayerCollection<Runner> _runners = new PlayerCollection<Runner>();
+	private HashMap<String, Arena> _arenas = new HashMap<String, Arena>();
+	private EithonPlugin _eithonPlugin;
+	private BukkitTask _idleTask;
+
+	public Controller(EithonPlugin eithonPlugin) {
+		this._eithonPlugin = eithonPlugin;
+		this._runners = new PlayerCollection<Runner>();
+		ScoreDisplay.initialize();
+		this._idleTask = null;
+	}
+	
+	public void delayedSave() {
+		delayedSave(1);
+	}
+
+	private void delayedSave(double seconds)
+	{
+		BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+		scheduler.scheduleSyncDelayedTask(this._eithonPlugin, new Runnable() {
+			public void run() {
+				save();
+			}
+		}, TimeMisc.secondsToTicks(seconds));		
+	}
+
+	public void delayedLoad(JavaPlugin plugin, double seconds)
+	{
+		BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+		scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
+			public void run() {
+				load();
+			}
+		}, TimeMisc.secondsToTicks(seconds));		
+	}
+
+	@SuppressWarnings("unchecked")
+	public void save() {
+		JSONArray arenas = new JSONArray();
+		for (Arena arena : this._arenas.values()) {
+			arenas.add(arena.toJson());
+		}
+		if ((arenas == null) || (arenas.size() == 0)) {
+			this._eithonPlugin.getEithonLogger().info("No Arenas saved.");
+			return;
+		}
+		this._eithonPlugin.getEithonLogger().info("Saving %d Arenas", arenas.size());
+		File file = getArenaStorageFile();
+
+		FileContent fileContent = new FileContent("Arena", 1, arenas);
+		fileContent.save(file);
+	}
+
+	void load() {
+		File file = getArenaStorageFile();
+		FileContent fileContent = FileContent.loadFromFile(file);
+		if (fileContent == null) {
+			this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.MAJOR, "File was empty.");
+			return;			
+		}
+		JSONArray array = (JSONArray) fileContent.getPayload();
+		if ((array == null) || (array.size() == 0)) {
+			this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.MAJOR, "The list of TravelPads was empty.");
+			return;
+		}
+		this._eithonPlugin.getEithonLogger().info("Restoring %d Arenas from file.", array.size());
+		this._arenas = new HashMap<String, Arena>();
+		for (int i = 0; i < array.size(); i++) {
+			verbose("load", "Loading Arena %d", i);
+			Arena arena = null;
+			try {
+				arena = Arena.getFromJson((JSONObject) array.get(i));
+				if (arena == null) {
+					this._eithonPlugin.getEithonLogger().error("Could not load arena %d (result was null).", i);
+					continue;
+				}
+				this._eithonPlugin.getEithonLogger().info("Loaded arena %s", arena.getName());
+				this._arenas.put(arena.getName(), arena);
+			} catch (Exception e) {
+				this._eithonPlugin.getEithonLogger().error("Could not load arena %d (exception).", i);
+				if (arena != null) this._eithonPlugin.getEithonLogger().error("Could not load arena %s", arena.getName());
+				this._eithonPlugin.getEithonLogger().error("%s", e.toString());
+				throw e;
+			}
+		}
+		for (Arena arena : this._arenas.values()) {
+			String linkedToArenaName = arena.getLinkedToArenaName();
+			if (linkedToArenaName == null) continue;
+			Arena linkedToArena = getArena(linkedToArenaName);
+			arena.linkToArena(linkedToArena);
+		}
+	}
+
+	private File getArenaStorageFile() {
+		File file = this._eithonPlugin.getDataFile("arenas.json");
+		return file;
+	}
+
+	private void startRepeatingTask() {
+		this._idleTask = this._eithonPlugin.getServer().getScheduler().runTaskTimer(this._eithonPlugin, new Runnable() {
+			@Override
+			public void run() {
+				doEverySecond();
+			}
+		}, 20L, 20L); // Every second
+	}
+
+	void doEverySecond() {
+		Iterator<Runner> iterator = this._runners.iterator();
+		while(iterator.hasNext()) {
+			Runner runner = iterator.next();
+			runner.doEverySecond();
+			if (runner.hasBeenIdleTooLong()) {
+				leaveGame(runner);
+			}
+		}
+	}
+
+	public void joinGame(Player player, String arenaName) {
+		if (!player.hasPermission("insanityrun.join")) {
+			//player.sendMessage(ChatColor.RED + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".noCmdPerms") + " join");
+			return;
+		}
+
+		Arena arena = this._arenas.get(arenaName);
+		if (arena == null) {
+			//player.sendMessage(ChatColor.RED + arenaName + " " + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".noArena"));
+			return;
+		}
+
+		// Does player have enough money to play?
+		/*
+		if (InsanityRun.useVault) {
+			if (InsanityRun.economy.getBalance(player) < InsanityRun.plugin.getConfig().getInt(arenaName + ".charge")) {
+				player.sendMessage(ChatColor.RED + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".notEnoughMoneyText") + InsanityRun.plugin.getConfig().getInt(arenaName + ".charge") + " " + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".payCurrency"));
+				return;
+			}
+			else {
+				// Withdraw money
+				EconomyResponse r = InsanityRun.economy.withdrawPlayer(player, InsanityRun.plugin.getConfig().getInt(arenaName + ".charge"));
+				if(r.transactionSuccess()) {
+					//player.sendMessage(String.format("You were charged %s %s to play and now have %s %s", r.amount, InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".payCurrency"), r.balance, InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".payCurrency")));
+				} else {
+					player.sendMessage(String.format("An error occured: %s", r.errorMessage));
+				}
+			}
+		}
+		 */
+
+		Runner runner = arena.joinGame(player);
+		this._runners.put(player, runner);
+		if (this._idleTask == null) startRepeatingTask();
+	}
+
+	public void leaveGame(Player player) {
+		if (!player.hasPermission("insanityrun.join")) {
+			//player.sendMessage(ChatColor.RED + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".noCmdPerms") + " join");
+			return;
+		}
+
+		Runner runner = this._runners.get(player);
+		if (runner == null) return;
+		leaveGame(runner);
+	}
+
+	private void leaveGame(Runner runner) {
+		runner.leaveGame();
+		this._runners.remove(runner.getPlayer());
+		if (this._runners.size()==0) endRepeatingTask();
+	}
+
+	public void endRepeatingTask() {
+		this._eithonPlugin.getServer().getScheduler().cancelTask(this._idleTask.getTaskId());
+	}
+
+	// When we need to kick all runners, do that with refund
+	public void kickAllRunners() {
+		Iterator<Runner> iterator = this._runners.iterator();
+		while (iterator.hasNext()) {
+			Runner runner = iterator.next();
+			final Player player = runner.getPlayer();
+			runner.leaveGameWithRefund();
+			this._runners.remove(player);
+		}
+	}
+
+	public void playerMovedOneBlock(Player player) {
+		final Runner runner = this._runners.get(player);
+		if ((runner == null) || !runner.isInGame()) return;
+
+		// Player frozen?
+		if (runner.isFrozen()) {
+			runner.teleportToLastLocation();
+			return;
+		}
+
+		boolean runnerLeftGame = runner.movedOneBlock(this._eithonPlugin);
+		if (runnerLeftGame) this._runners.remove(player);
+	}
+
+	public void maybeLeaveGameBecauseOfTeleport(Player player) {
+		final Runner runner = this._runners.get(player);
+		if (runner == null) return;
+		runner.maybeLeaveGameBecauseOfTeleport();
+	}
+
+	public boolean isInGame(Player player) {
+		Runner runner = this._runners.get(player);
+		return ((runner != null) && runner.isInGame());
+	}
+
+	public boolean verifyArenaNameIsNew(CommandSender sender, String name) {
+		Arena arena = getArena(name);
+		return arena == null;
+	}
+
+	public boolean verifyArenaExists(CommandSender sender, String name) {
+		Arena arena = getArenaByNameOrInformUser(sender, name);
+		return arena != null;
+	}
+	
+	private Arena getArena(String name) {
+		return this._arenas.get(name.toLowerCase());
+	}
+
+	public boolean createOrUpdateArena(Player player, String name) {
+		Arena arena = new Arena(name, player.getLocation());
+		this._arenas.put(name.toLowerCase(), arena);
+		return true;
+	}
+
+	Arena getArenaByNameOrInformUser(CommandSender sender, String name) {
+		Arena arena = getArena(name);
+		if (arena != null) return arena;
+		Config.M.unknownArena.sendMessage(sender, name);
+		return null;
+	}
+
+	public boolean removeArena(CommandSender sender, String name) {
+		Arena arena = getArenaByNameOrInformUser(sender, name);
+		if (arena == null) return false;
+		this._arenas.remove(name);
+		return true;
+	}
+
+	public boolean linkArenas(CommandSender sender, String name1, String name2) {
+		Arena arena1 = getArenaByNameOrInformUser(sender, name1);
+		if (arena1 == null) return false;
+		Arena arena2 = getArenaByNameOrInformUser(sender, name2);
+		if (arena2 == null) return false;
+		arena1.linkToArena(arena2);
+		return true;
+	}
+
+	public boolean gotoArena(Player player, String name) {
+		Arena arena = getArenaByNameOrInformUser(player, name);
+		if (arena == null) return false;
+		player.teleport(arena.getSpawnLocation());
+		return true;
+	}
+
+	public void listArenas(CommandSender sender) {
+		for (Arena arena : this._arenas.values()) {
+			Config.M.arenaInfo.sendMessage(sender, arena.getName());
+		}
+	}
+
+	void verbose(String method, String format, Object... args) {
+		String message = String.format(format, args);
+		this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.VERBOSE, "Controller.%s: %s", method, message);
+	}
+
+	public boolean joinArena(Player player, String name) {
+		Arena arena = getArenaByNameOrInformUser(player, name);
+		if (arena == null) return false;
+		arena.joinGame(player);
+		return true;
+	}
+}
