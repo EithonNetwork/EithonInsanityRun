@@ -1,18 +1,3 @@
-#
-# Should we use Vault for economy? If false, runs will be free of charge.
-#
-UseVault: true
-
-#
-# After how long time should the player be kicked
-#
-IdleKickTime: 2
-
-#
-# Should we broadcast wins
-#
-BroadcastWins: true
-
 eithon:
   UseMarkUpForMessages: 0
   UseWrappingForMessages: 0
@@ -24,20 +9,46 @@ eithon:
   #  2 = MINOR (also minor messages)
   #  3 = VERBOSE (all messages)
   #
-  DebugLevel: 1
+  DebugLevel: 3
+
+#
+# Should we use Vault for economy? If false, runs will be free of charge.
+#
+UseVault: false
+
+#
+# After how long time should the player be kicked
+#
+IdleKickTime: 2
+
+#
+# Should we broadcast wins
+#
+BroadcastWins: true
+
+#
+# Time for potion
+#
+PotionDuration: 2
+
+#
+# Should water restart run?
+#
+WaterRestartsRun: true
+
+#
+# Should we use checkpoints? (WaterRestartsRun = true overrides this)
+#
+UseCheckpoints: true
+
+#
+# Should we use teleport player back to where he joined the game?
+#
+TelePortAfterEnd: true
+
 
 commands:
-  #
-  # This command is dispatched when a player starts to fly in insanityrun mode.
-  # Parameters: <FlySpeed> (%.2f), <player name> (%s)
-  #
-  SetSpeed: speed fly %.2f %s
-  
-  #
-  # This command is dispatched when a player tries to fly when not supposed to.
-  # Parameters: -
-  #
-  StopFly: fly
+
 
 messages:
 
@@ -47,3 +58,32 @@ messages:
   #
   PlayerFinished: '%s finished %s with %s %s. Time: %s'
 
+  #
+  # Parameters: <arena name> (%s)
+  ArenaAdded: Arena %s has been added.
+
+  #
+  # Parameters: <arena name> (%s)
+  ArenaRemoved: Arena %s has been removed.
+
+  #
+  # Parameters: <arena name 1> (%s) <arena name 2> (%s)
+  ArenasLinked: Arena %s and %s has been linked.
+
+  #
+  # Parameters: <arena name> (%s)
+  GotoArena: You have been teleported to Arena %s.
+
+  #
+  # Parameters: <arena name> (%s)
+  JoinArena: You have joined Arena %s.
+
+  #
+  # Parameters: <arena name> (%s)
+  UnknownArena: Unknown arena (%s).
+
+
+  #
+  # Parameters: <arena name> (%s)
+  Arena info: '%s'
+  

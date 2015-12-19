@@ -54,6 +54,7 @@ class Arena extends JsonObject<Arena>{
 	}
 
 	public Runner joinGame(Player player) {
+		// TODO: Verify that the runner doesn't already exist
 		Runner runner = new Runner(player, this);
 		this._runners.put(player, runner);
 		return runner;

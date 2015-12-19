@@ -4,7 +4,10 @@ import java.awt.Point;
 import java.util.HashMap;
 import java.util.UUID;
 
+import net.eithon.library.core.CoreMisc;
 import net.eithon.library.core.IUuidAndName;
+import net.eithon.library.plugin.Logger;
+import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.plugin.insanityrun.Config;
 
 import org.bukkit.Bukkit;
@@ -90,12 +93,14 @@ class Runner implements IUuidAndName {
 	}
 
 	public void doEverySecond() {
+		verbose("doEverySecond", "Enter");
 		if (this._isFrozen || !this._isInGame) {
 			this._idleCount = 0;
 			if (!this.isInGame()) return;
 		}
 		updateIdleCount();
 		this._scoreKeeper.updateTimeScore();
+		verbose("doEverySecond", "Leave");
 	}
 
 	public boolean movedOneBlock(Plugin plugin) {
@@ -207,7 +212,7 @@ class Runner implements IUuidAndName {
 	private void safeTeleport(Location location) {
 		try {
 			this._stopTeleport = false;
-			this._player.teleport(this._rememberLocation);
+			this._player.teleport(location);
 			updateLocation();
 		} finally {
 			this._stopTeleport = true;
@@ -357,5 +362,11 @@ class Runner implements IUuidAndName {
 		return false;
 	}
 	 */
+
+
+	private void verbose(String method, String format, Object... args) {
+		String message = CoreMisc.safeFormat(format, args);
+		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "EithonInsanityRun: Runner.%s: %s", method, message);
+	}
 }
 

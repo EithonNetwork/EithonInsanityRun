@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import net.eithon.library.core.CoreMisc;
 import net.eithon.library.core.PlayerCollection;
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.json.FileContent;
@@ -31,6 +32,7 @@ public class Controller {
 		this._runners = new PlayerCollection<Runner>();
 		ScoreDisplay.initialize();
 		this._idleTask = null;
+		load();
 	}
 	
 	public void delayedSave() {
@@ -125,10 +127,11 @@ public class Controller {
 			public void run() {
 				doEverySecond();
 			}
-		}, 20L, 20L); // Every second
+		}, TimeMisc.secondsToTicks(2), TimeMisc.secondsToTicks(2)); // Every second
 	}
 
 	void doEverySecond() {
+		verbose("doEverySecond", "Enter");
 		Iterator<Runner> iterator = this._runners.iterator();
 		while(iterator.hasNext()) {
 			Runner runner = iterator.next();
@@ -137,20 +140,18 @@ public class Controller {
 				leaveGame(runner);
 			}
 		}
+		verbose("doEverySecond", "Leave");
 	}
 
-	public void joinGame(Player player, String arenaName) {
-		if (!player.hasPermission("insanityrun.join")) {
-			//player.sendMessage(ChatColor.RED + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".noCmdPerms") + " join");
-			return;
-		}
+	public void endRepeatingTask() {
+		if (this._idleTask == null) return;
+		this._eithonPlugin.getServer().getScheduler().cancelTask(this._idleTask.getTaskId());
+		this._idleTask = null;
+	}
 
-		Arena arena = this._arenas.get(arenaName);
-		if (arena == null) {
-			//player.sendMessage(ChatColor.RED + arenaName + " " + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".noArena"));
-			return;
-		}
-
+	public boolean joinArena(Player player, String arenaName) {
+		Arena arena = getArenaByNameOrInformUser(player, arenaName);
+		if (arena == null) return false;
 		// Does player have enough money to play?
 		/*
 		if (InsanityRun.useVault) {
@@ -173,6 +174,7 @@ public class Controller {
 		Runner runner = arena.joinGame(player);
 		this._runners.put(player, runner);
 		if (this._idleTask == null) startRepeatingTask();
+		return true;
 	}
 
 	public void leaveGame(Player player) {
@@ -190,10 +192,6 @@ public class Controller {
 		runner.leaveGame();
 		this._runners.remove(runner.getPlayer());
 		if (this._runners.size()==0) endRepeatingTask();
-	}
-
-	public void endRepeatingTask() {
-		this._eithonPlugin.getServer().getScheduler().cancelTask(this._idleTask.getTaskId());
 	}
 
 	// When we need to kick all runners, do that with refund
@@ -288,15 +286,8 @@ public class Controller {
 		}
 	}
 
-	void verbose(String method, String format, Object... args) {
-		String message = String.format(format, args);
+	private void verbose(String method, String format, Object... args) {
+		String message = CoreMisc.safeFormat(format, args);
 		this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.VERBOSE, "Controller.%s: %s", method, message);
-	}
-
-	public boolean joinArena(Player player, String name) {
-		Arena arena = getArenaByNameOrInformUser(player, name);
-		if (arena == null) return false;
-		arena.joinGame(player);
-		return true;
 	}
 }

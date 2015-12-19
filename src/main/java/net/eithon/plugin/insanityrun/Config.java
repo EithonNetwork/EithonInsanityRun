@@ -27,8 +27,7 @@ public class Config {
 			useVault = config.getBoolean("UseVault", false);
 			idleKickTime = config.getInt("IdleKickTime", 2);
 			broadcastWins = config.getBoolean("BroadcastWins", false);
-			blockJumpHeight = (float) config.getDouble("BlockJumpHeight", 2.0);
-			blockJumpHeight =  config.getInt("PotionDuration", 2);
+			potionDuration =  config.getInt("PotionDuration", 2);
 			waterRestartsRun = config.getBoolean("WaterRestartsRun", true);
 			useCheckpoints = config.getBoolean("UseCheckpoints", true);
 			telePortAfterEnd = config.getBoolean("TelePortAfterEnd", true);
@@ -75,7 +74,7 @@ public class Config {
 					"You have joined Arena %.");
 			arenaInfo = config.getConfigurableMessage(
 					"messages.ArenaInfo", 1, 
-					"%");
+					"%s");
 		}		
 	}
 
