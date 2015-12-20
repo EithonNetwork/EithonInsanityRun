@@ -8,6 +8,7 @@ import net.eithon.library.core.CoreMisc;
 import net.eithon.library.core.IUuidAndName;
 import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
+import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.insanityrun.Config;
 
 import org.bukkit.Bukkit;
@@ -65,6 +66,11 @@ class Runner implements IUuidAndName {
 	public boolean isInGame() { return this._isInGame; }
 	public boolean isFrozen() { return this._isFrozen; }
 	public boolean hasBeenIdleTooLong() { return this._idleCount > Config.V.idleKickTime; }
+	public void setIsFrozen(boolean isFrozen) { this._isFrozen = isFrozen; }
+	public void resetHelmet() {
+		Player player = getPlayer();
+		player.getInventory().setHelmet(this._rememberHelmetWorn);
+	}
 
 	@Override
 	public String getName()	{ return this._player.getName(); }
@@ -92,15 +98,13 @@ class Runner implements IUuidAndName {
 		this._arena.runnerLeft(this);
 	}
 
-	public void doEverySecond() {
-		verbose("doEverySecond", "Enter");
+	public void doRepeatedly() {
 		if (this._isFrozen || !this._isInGame) {
 			this._idleCount = 0;
 			if (!this.isInGame()) return;
 		}
 		updateIdleCount();
 		this._scoreKeeper.updateTimeScore();
-		verbose("doEverySecond", "Leave");
 	}
 
 	public boolean movedOneBlock(final Plugin plugin) {
@@ -110,42 +114,63 @@ class Runner implements IUuidAndName {
 		final Block firstBlockUnderFeet = getFirstBlockUnderFeet(currentLocation, Config.V.maxHeightOverBlock);
 		if (firstBlockUnderFeet == null) return false;
 		final Material blockMaterial = firstBlockUnderFeet.getType();
+		RunnerEffect effect = translateMaterialToRunnerEffect(blockMaterial);
 		boolean playSound = true;
-		if (blockMaterial == Material.GOLD_BLOCK) {
+		if (effect == RunnerEffect.COIN) {
 			playSound = maybeGetCoin(firstBlockUnderFeet);
 		}
 		if (playSound) SoundMap.playSound(blockMaterial, this._lastLocation);
 		PotionEffectMap.addPotionEffects(blockMaterial, this._player);
 		// Player effects when walking on blocks
-		switch(blockMaterial) {
-		case DIAMOND_BLOCK: // Jump
+		switch(effect) {
+		case JUMP:
 			this._player.setVelocity(this._player.getVelocity().setY(1.5));
 			break;
-		case PUMPKIN: // Pumpkin helmet
-			setPumpkinHelmet(plugin);
+		case PUMPKIN_HELMET:
+			TemporaryEffects.pumpkinHelmet.run(TimeMisc.secondsToTicks(2), this);
 			break;
-		case ICE: // freeze player
-			freezePlayer(plugin);
+		case FREEZE:
+			TemporaryEffects.freeze.run(TimeMisc.secondsToTicks(2), this);
 			break;
-		case SPONGE: // Bounce
+		case BOUNCE:
 			this._player.setVelocity(this._lastLocation.getDirection().multiply(-1));
 			break;
-		case GLOWSTONE: // checkpoint
+		case CHECKPOINT:
 			this._lastCheckPoint = this._lastLocation;
 			break;
-		case REDSTONE_BLOCK: // finish line
+		case FINISH:
 			endLevelOrGame(plugin);
 			break;
-		case WATER:
-		case STATIONARY_WATER:
-		case LAVA:
-		case STATIONARY_LAVA:
+		case RESTART:
 			runnerLeftGame = restart(plugin);
 			break;
 		default:
 			break;
 		}
 		return runnerLeftGame;
+	}
+
+	public enum RunnerEffect {
+		NONE, COIN, JUMP, PUMPKIN_HELMET, FREEZE, BOUNCE, CHECKPOINT, FINISH, RESTART
+	}
+	
+	public RunnerEffect translateMaterialToRunnerEffect(final Material blockMaterial) {
+		switch(blockMaterial) {
+		case GOLD_BLOCK: return RunnerEffect.COIN;
+		case DIAMOND_BLOCK: return RunnerEffect.JUMP;
+		case PUMPKIN: return RunnerEffect.PUMPKIN_HELMET;
+		case ICE: return RunnerEffect.FREEZE;
+		case SPONGE: return RunnerEffect.BOUNCE;
+		case GLOWSTONE: return RunnerEffect.CHECKPOINT;
+		case REDSTONE_BLOCK: return RunnerEffect.FINISH;
+		case WATER:
+		case STATIONARY_WATER:
+		case LAVA:
+		case STATIONARY_LAVA:
+			return RunnerEffect.RESTART;
+		default:
+			return RunnerEffect.NONE;
+		}
 	}
 
 	private Block getFirstBlockUnderFeet(final Location feetLocation, final int maxDepth) {
@@ -241,27 +266,6 @@ class Runner implements IUuidAndName {
 		}
 	}
 
-	private void freezePlayer(final Plugin plugin) {
-		final Runner runner = this;
-		this._isFrozen = true;
-		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-			public void run() {
-				runner._isFrozen = false;
-			}
-		}, 20 * 2); // 20 ticks per second x 'gracetime' seconds			
-	}
-
-	private void setPumpkinHelmet(Plugin plugin) {
-		final Player player = this._player;
-		player.getInventory().setHelmet(new ItemStack(Material.PUMPKIN, 1, (short) 14));
-		final Runner runner = this;
-		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-			public void run() {
-				player.getInventory().setHelmet(runner._rememberHelmetWorn);
-			}
-		}, 20 * 2); // 20 ticks per second x 'gracetime' seconds
-	}
-
 	private boolean maybeGetCoin(Block block) {
 		Point point = new Point(block.getX(), block.getY());
 		if (this._goldBlocks.containsKey(point)) return false;
@@ -284,7 +288,7 @@ class Runner implements IUuidAndName {
 					leaveGame();
 				}
 			}
-		}, 20 * 1); // 20 ticks per second x 1 seconds
+		}, TimeMisc.secondsToTicks(1)); // 20 ticks per second x 1 seconds
 		// Will leave game?
 		return (!Config.V.waterRestartsRun && !Config.V.useCheckpoints);
 	}

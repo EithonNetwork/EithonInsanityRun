@@ -26,7 +26,7 @@ public class Config {
 
 		static void load(Configuration config) {
 			useVault = config.getBoolean("UseVault", false);
-			idleKickTime = config.getInt("IdleKickTime", 2);
+			idleKickTime = config.getInt("IdleKickTime", 4);
 			broadcastWins = config.getBoolean("BroadcastWins", false);
 			potionDuration =  config.getInt("PotionDuration", 2);
 			waterRestartsRun = config.getBoolean("WaterRestartsRun", true);

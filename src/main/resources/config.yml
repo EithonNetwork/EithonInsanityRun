@@ -17,9 +17,9 @@ eithon:
 UseVault: false
 
 #
-# After how long time should the player be kicked
+# After how many seconds should the player be kicked
 #
-IdleKickTime: 2
+IdleKickTime: 4
 
 #
 # Should we broadcast wins

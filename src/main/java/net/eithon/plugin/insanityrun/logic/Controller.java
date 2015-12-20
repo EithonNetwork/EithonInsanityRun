@@ -127,7 +127,7 @@ public class Controller {
 			public void run() {
 				doEverySecond();
 			}
-		}, TimeMisc.secondsToTicks(2), TimeMisc.secondsToTicks(2)); // Every second
+		}, TimeMisc.secondsToTicks(1), TimeMisc.secondsToTicks(1)); // Every second
 	}
 
 	void doEverySecond() {
@@ -135,7 +135,7 @@ public class Controller {
 		Iterator<Runner> iterator = this._runners.iterator();
 		while(iterator.hasNext()) {
 			Runner runner = iterator.next();
-			runner.doEverySecond();
+			runner.doRepeatedly();
 			if (runner.hasBeenIdleTooLong()) {
 				leaveGame(runner);
 			}
