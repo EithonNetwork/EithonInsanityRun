@@ -22,6 +22,7 @@ public class Config {
 		public static boolean waterRestartsRun;
 		public static boolean useCheckpoints;
 		public static boolean telePortAfterEnd;
+		public static int maxHeightOverBlock;
 
 		static void load(Configuration config) {
 			useVault = config.getBoolean("UseVault", false);
@@ -31,6 +32,7 @@ public class Config {
 			waterRestartsRun = config.getBoolean("WaterRestartsRun", true);
 			useCheckpoints = config.getBoolean("UseCheckpoints", true);
 			telePortAfterEnd = config.getBoolean("TelePortAfterEnd", true);
+			maxHeightOverBlock =  config.getInt("MaxHeightOverBlock", 2);
 		}
 
 	}

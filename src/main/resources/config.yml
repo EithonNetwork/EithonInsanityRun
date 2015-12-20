@@ -46,6 +46,12 @@ UseCheckpoints: true
 #
 TelePortAfterEnd: true
 
+#
+# Max jump height over a block and still count as touching the block
+#
+MaxHeightOverBlock: 2
+
+
 
 commands:
 

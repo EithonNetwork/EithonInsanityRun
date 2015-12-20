@@ -103,16 +103,16 @@ class Runner implements IUuidAndName {
 		verbose("doEverySecond", "Leave");
 	}
 
-	public boolean movedOneBlock(Plugin plugin) {
+	public boolean movedOneBlock(final Plugin plugin) {
 		if (!this._isInGame) return false;
 		boolean runnerLeftGame = false;
-		Location currentLocation = updateLocation();
-		currentLocation.setY(currentLocation.getY() - 2);
-		Block blockUnderFeet = currentLocation.getBlock();
-		Material blockMaterial = blockUnderFeet.getType();
+		final Location currentLocation = updateLocation();
+		final Block firstBlockUnderFeet = getFirstBlockUnderFeet(currentLocation, Config.V.maxHeightOverBlock);
+		if (firstBlockUnderFeet == null) return false;
+		final Material blockMaterial = firstBlockUnderFeet.getType();
 		boolean playSound = true;
 		if (blockMaterial == Material.GOLD_BLOCK) {
-			playSound = maybeGetCoin(blockUnderFeet);
+			playSound = maybeGetCoin(firstBlockUnderFeet);
 		}
 		if (playSound) SoundMap.playSound(blockMaterial, this._lastLocation);
 		PotionEffectMap.addPotionEffects(blockMaterial, this._player);
@@ -148,6 +148,28 @@ class Runner implements IUuidAndName {
 		return runnerLeftGame;
 	}
 
+	private Block getFirstBlockUnderFeet(final Location feetLocation, final int maxDepth) {
+		Block feetBlock = feetLocation.getBlock();
+		for (int delta = 0; delta <= maxDepth; delta++) {
+			Block block = feetBlock.getWorld().getBlockAt(feetBlock.getX(),  feetBlock.getY()-delta, feetBlock.getZ());
+			Material blockMaterial = block.getType();
+			switch(blockMaterial) {
+			case AIR:
+				continue;
+			case WATER:
+			case STATIONARY_WATER:
+			case LAVA:
+			case STATIONARY_LAVA:
+				if (delta == 0) return block;
+				return null;
+			default:
+				if (delta == 0) return null;
+				return block;
+			}
+		}
+		return null;
+	}
+
 	public void teleportToLastLocation() {
 		safeTeleport(this._lastLocation);
 	}
@@ -173,7 +195,7 @@ class Runner implements IUuidAndName {
 		}
 	}
 
-	private boolean lastBlockIsSame(Block currentBlock) {
+	private boolean lastBlockIsSame(final Block currentBlock) {
 		return (this._lastBlock.getX() == currentBlock.getX()) && (this._lastBlock.getZ() == currentBlock.getZ());
 	}
 
@@ -209,7 +231,7 @@ class Runner implements IUuidAndName {
 		safeTeleport(this._rememberLocation);
 	}
 
-	private void safeTeleport(Location location) {
+	private void safeTeleport(final Location location) {
 		try {
 			this._stopTeleport = false;
 			this._player.teleport(location);
@@ -219,7 +241,7 @@ class Runner implements IUuidAndName {
 		}
 	}
 
-	private void freezePlayer(Plugin plugin) {
+	private void freezePlayer(final Plugin plugin) {
 		final Runner runner = this;
 		this._isFrozen = true;
 		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
