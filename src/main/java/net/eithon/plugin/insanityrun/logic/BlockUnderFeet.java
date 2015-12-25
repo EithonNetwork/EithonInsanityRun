@@ -24,8 +24,13 @@ class BlockUnderFeet {
 
 	BlockUnderFeet(final Location feetLocation) {
 		verbose("constructor", "Enter");
-		this._block = null;
-		this._runnerEffect = RunnerEffect.NONE;
+		this._block = findFirstBlockUnderFeet(feetLocation);
+		this._runnerEffect = translateMaterialToRunnerEffect();
+		verbose("constructor", "RunnerEffect: %s", this._runnerEffect.toString());
+		verbose("constructor", "Leave");
+	}
+
+	private Block findFirstBlockUnderFeet(final Location feetLocation) {
 		Block feetBlock = feetLocation.getBlock();
 		for (int delta = 0; delta <= Config.V.maxHeightOverBlock; delta++) {
 			Block block = feetBlock.getWorld().getBlockAt(feetBlock.getX(),  feetBlock.getY()-delta, feetBlock.getZ());
@@ -37,15 +42,12 @@ class BlockUnderFeet {
 			case STATIONARY_WATER:
 			case LAVA:
 			case STATIONARY_LAVA:
-				if (delta == 0) this._block = block;
+				return (delta == 0) ? block : null;
 			default:
-				if (delta > 0) this._block = block;
+				return (delta > 0) ? block : null;
 			}
 		}
-		RunnerEffect runnerEffect = translateMaterialToRunnerEffect();
-		verbose("constructor", "RunnerEffect: %s", runnerEffect.toString());
-		this._runnerEffect = runnerEffect;
-		verbose("constructor", "Leave");
+		return null;
 	}
 
 	public boolean notFound() { return this._block == null; }
