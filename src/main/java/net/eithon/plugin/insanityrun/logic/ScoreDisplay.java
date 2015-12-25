@@ -14,6 +14,7 @@ class ScoreDisplay {
 	public Objective _objective;
 	private Score _coinScore;
 	private Score _timeScore;
+	private Player _player;
 	
 	static void initialize() {
 	}
@@ -21,6 +22,7 @@ class ScoreDisplay {
 	public ScoreDisplay(final Player player) {
 		final String playerName = player.getName();
 		ScoreboardManager manager = Bukkit.getScoreboardManager();
+		this._player = player;
 		this._board = manager.getNewScoreboard();
 		player.setScoreboard(this._board);
 		// Objective
@@ -59,5 +61,9 @@ class ScoreDisplay {
 
 	public void setCoinScore(int score) {
 		this._coinScore.setScore(score);
+	}
+
+	public void disable() {
+		this._player.setScoreboard(null);
 	}
 }

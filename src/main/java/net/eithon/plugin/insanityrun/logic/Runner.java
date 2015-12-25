@@ -18,6 +18,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -94,7 +95,7 @@ class Runner implements IUuidAndName {
 		verbose("leaveGame", "Enter refund: %s, teleportToStart: %s",
 				refund?"true":"false", teleportToStart?"true":"false");
 		this._isInGame = false;
-		this._scoreKeeper.reset();
+		this._scoreKeeper.disable();
 		final Player player = this._player;
 		if (player == null) return;	
 		PotionEffectMap.removePotionEffects(player);
@@ -117,6 +118,8 @@ class Runner implements IUuidAndName {
 		if (!lastBlockIsSame(currentBlock)) {
 			this._lastMoveTime = currentRuntime;
 			this._lastBlock = currentBlock;
+		} else {
+			this._player.playSound(this._lastLocation, Sound.ENDERMAN_IDLE, 1, 1);
 		}
 	}
 

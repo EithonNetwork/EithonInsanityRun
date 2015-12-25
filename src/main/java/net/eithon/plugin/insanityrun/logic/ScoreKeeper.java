@@ -51,4 +51,8 @@ public class ScoreKeeper {
 		String message = CoreMisc.safeFormat(format, args);
 		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "EithonInsanityRun: ScoreKeeper.%s: %s", method, message);
 	}
+
+	public void disable() {
+		this._scoreDisplay.disable();
+	}
 }
