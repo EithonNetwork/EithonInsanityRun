@@ -1,6 +1,6 @@
 name: EithonInsanityRun
 main: net.eithon.plugin.insanityrun.Plugin
-version: 0.2
+version: 0.3
 author: vanbrayne
 description: A Minecraft plugin for insanity run mini game
 depend: [EithonLibrary]

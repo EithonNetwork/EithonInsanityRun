@@ -31,6 +31,7 @@ public class Controller {
 		this._eithonPlugin = eithonPlugin;
 		this._runners = new PlayerCollection<Runner>();
 		ScoreDisplay.initialize();
+		TemporaryEffects.initialize(eithonPlugin);
 		this._idleTask = null;
 		load();
 	}

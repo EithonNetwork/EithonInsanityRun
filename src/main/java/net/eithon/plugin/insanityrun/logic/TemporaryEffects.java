@@ -2,9 +2,7 @@ package net.eithon.plugin.insanityrun.logic;
 
 import net.eithon.library.time.ITemporaryEffect;
 import net.eithon.library.time.TemporaryEffect;
-import net.eithon.library.time.TimeMisc;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

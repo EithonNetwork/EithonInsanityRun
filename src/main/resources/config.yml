@@ -51,6 +51,16 @@ TelePortAfterEnd: true
 #
 MaxHeightOverBlock: 2
 
+#
+# The time span that the runner will keep a pumpkin helmet after receiving it
+#
+PumpkinHelmetTimeSpan: 2s
+
+#
+# The time span that the runner will freeze after activation
+#
+FreezeTimeSpan: 2s
+
 
 
 commands:

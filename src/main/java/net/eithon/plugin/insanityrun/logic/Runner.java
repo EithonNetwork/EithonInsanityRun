@@ -2,6 +2,8 @@ package net.eithon.plugin.insanityrun.logic;
 
 import java.awt.Point;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import net.eithon.library.core.CoreMisc;
@@ -10,6 +12,7 @@ import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.insanityrun.Config;
+import net.eithon.plugin.insanityrun.logic.BlockUnderFeet.RunnerEffect;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -33,7 +36,7 @@ class Runner implements IUuidAndName {
 	private Block _lastBlock;
 	private Location _lastLocation;
 	private Location _lastCheckPoint;
-	private HashMap<Point, Integer> _goldBlocks;
+	private HashMap<Point, Location> _goldBlocks;
 	private boolean _stopTeleport;
 
 	Runner(Player player, Arena arena)
@@ -111,29 +114,28 @@ class Runner implements IUuidAndName {
 		if (!this._isInGame) return false;
 		boolean runnerLeftGame = false;
 		final Location currentLocation = updateLocation();
-		final Block firstBlockUnderFeet = getFirstBlockUnderFeet(currentLocation, Config.V.maxHeightOverBlock);
-		if (firstBlockUnderFeet == null) return false;
-		final Material blockMaterial = firstBlockUnderFeet.getType();
-		RunnerEffect effect = translateMaterialToRunnerEffect(blockMaterial);
+		final BlockUnderFeet firstBlockUnderFeet = new BlockUnderFeet(currentLocation);
+		final RunnerEffect runnerEffect = firstBlockUnderFeet.getRunnerEffect();
+		if (runnerEffect == RunnerEffect.NONE) return false;
 		boolean playSound = true;
-		if (effect == RunnerEffect.COIN) {
+		if (runnerEffect == RunnerEffect.COIN) {
 			playSound = maybeGetCoin(firstBlockUnderFeet);
 		}
-		if (playSound) SoundMap.playSound(blockMaterial, this._lastLocation);
-		PotionEffectMap.addPotionEffects(blockMaterial, this._player);
+		if (playSound) SoundMap.playSound(runnerEffect, this._lastLocation);
+		PotionEffectMap.addPotionEffects(runnerEffect, this._player);
 		// Player effects when walking on blocks
-		switch(effect) {
+		switch(runnerEffect) {
 		case JUMP:
-			this._player.setVelocity(this._player.getVelocity().setY(1.5));
+			jump();
 			break;
 		case PUMPKIN_HELMET:
-			TemporaryEffects.pumpkinHelmet.run(TimeMisc.secondsToTicks(2), this);
+			TemporaryEffects.pumpkinHelmet.run(TimeMisc.secondsToTicks(Config.V.pumpkinHelmetSeconds), this);
 			break;
 		case FREEZE:
-			TemporaryEffects.freeze.run(TimeMisc.secondsToTicks(2), this);
+			if (!isFrozen()) TemporaryEffects.freeze.run(TimeMisc.secondsToTicks(Config.V.freezeSeconds), this);
 			break;
 		case BOUNCE:
-			this._player.setVelocity(this._lastLocation.getDirection().multiply(-1));
+			bounceBack();
 			break;
 		case CHECKPOINT:
 			this._lastCheckPoint = this._lastLocation;
@@ -141,7 +143,8 @@ class Runner implements IUuidAndName {
 		case FINISH:
 			endLevelOrGame(plugin);
 			break;
-		case RESTART:
+		case WATER:
+		case LAVA:
 			runnerLeftGame = restart(plugin);
 			break;
 		default:
@@ -150,49 +153,12 @@ class Runner implements IUuidAndName {
 		return runnerLeftGame;
 	}
 
-	public enum RunnerEffect {
-		NONE, COIN, JUMP, PUMPKIN_HELMET, FREEZE, BOUNCE, CHECKPOINT, FINISH, RESTART
-	}
-	
-	public RunnerEffect translateMaterialToRunnerEffect(final Material blockMaterial) {
-		switch(blockMaterial) {
-		case GOLD_BLOCK: return RunnerEffect.COIN;
-		case DIAMOND_BLOCK: return RunnerEffect.JUMP;
-		case PUMPKIN: return RunnerEffect.PUMPKIN_HELMET;
-		case ICE: return RunnerEffect.FREEZE;
-		case SPONGE: return RunnerEffect.BOUNCE;
-		case GLOWSTONE: return RunnerEffect.CHECKPOINT;
-		case REDSTONE_BLOCK: return RunnerEffect.FINISH;
-		case WATER:
-		case STATIONARY_WATER:
-		case LAVA:
-		case STATIONARY_LAVA:
-			return RunnerEffect.RESTART;
-		default:
-			return RunnerEffect.NONE;
-		}
+	private void jump() {
+		this._player.setVelocity(this._player.getVelocity().setY(1.5));
 	}
 
-	private Block getFirstBlockUnderFeet(final Location feetLocation, final int maxDepth) {
-		Block feetBlock = feetLocation.getBlock();
-		for (int delta = 0; delta <= maxDepth; delta++) {
-			Block block = feetBlock.getWorld().getBlockAt(feetBlock.getX(),  feetBlock.getY()-delta, feetBlock.getZ());
-			Material blockMaterial = block.getType();
-			switch(blockMaterial) {
-			case AIR:
-				continue;
-			case WATER:
-			case STATIONARY_WATER:
-			case LAVA:
-			case STATIONARY_LAVA:
-				if (delta == 0) return block;
-				return null;
-			default:
-				if (delta == 0) return null;
-				return block;
-			}
-		}
-		return null;
+	private void bounceBack() {
+		this._player.setVelocity(this._lastLocation.getDirection().multiply(-1));
 	}
 
 	public void teleportToLastLocation() {
@@ -236,7 +202,7 @@ class Runner implements IUuidAndName {
 		this._scoreKeeper.resetCoins();
 		this._idleCount = 0;
 		this._stopTeleport = true;
-		this._goldBlocks = new HashMap<Point, Integer>();
+		this._goldBlocks = new HashMap<Point, Location>();
 		PotionEffectMap.removePotionEffects(this._player);
 		this._player.setFireTicks(0);
 		safeTeleport(this._arena.getSpawnLocation());
@@ -249,6 +215,14 @@ class Runner implements IUuidAndName {
 		this._player.setFireTicks(0);
 		Location location = this._lastCheckPoint;
 		if (location == null) location = this._arena.getSpawnLocation();
+		Iterator<Entry<Point, Location>> iterator = this._goldBlocks.entrySet().iterator();
+		while (iterator.hasNext()) {
+			final Entry<Point,Location> entry = iterator.next();
+			if (entry.getValue().equals(this._lastCheckPoint)) {
+				this._scoreKeeper.addCoinScore(-1);
+				this._goldBlocks.remove(entry.getKey());
+			}
+		}
 		safeTeleport(location);
 	}
 
@@ -266,10 +240,10 @@ class Runner implements IUuidAndName {
 		}
 	}
 
-	private boolean maybeGetCoin(Block block) {
-		Point point = new Point(block.getX(), block.getY());
+	private boolean maybeGetCoin(BlockUnderFeet firstBlockUnderFeet) {
+		Point point = new Point(firstBlockUnderFeet.getBlock().getX(), firstBlockUnderFeet.getBlock().getY());
 		if (this._goldBlocks.containsKey(point)) return false;
-		this._goldBlocks.put(point, 1);
+		this._goldBlocks.put(point, this._lastCheckPoint);
 		this._scoreKeeper.addCoinScore(1);
 		return true;
 	}
