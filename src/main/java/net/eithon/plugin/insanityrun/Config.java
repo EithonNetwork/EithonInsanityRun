@@ -16,7 +16,7 @@ public class Config {
 	public static class V {
 		public static boolean useVault;
 		public static boolean broadcastWins;
-		public static int idleKickTime;
+		public static long idleKickTimeSeconds;
 		public static float blockJumpHeight;
 		public static int potionDuration;
 		public static boolean waterRestartsRun;
@@ -28,7 +28,7 @@ public class Config {
 
 		static void load(Configuration config) {
 			useVault = config.getBoolean("UseVault", false);
-			idleKickTime = config.getInt("IdleKickTime", 4);
+			idleKickTimeSeconds = config.getSeconds("IdleKickTime", 4);
 			broadcastWins = config.getBoolean("BroadcastWins", false);
 			potionDuration =  config.getInt("PotionDuration", 2);
 			waterRestartsRun = config.getBoolean("WaterRestartsRun", true);

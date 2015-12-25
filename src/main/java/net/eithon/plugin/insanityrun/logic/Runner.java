@@ -32,8 +32,8 @@ class Runner implements IUuidAndName {
 	private Location _rememberLocation;
 	private GameMode _rememberGameMode;
 	private ItemStack _rememberHelmetWorn;
-	private int _idleCount;
 	private Block _lastBlock;
+	private long _lastMoveTime;
 	private Location _lastLocation;
 	private Location _lastCheckPoint;
 	private HashMap<Point, Location> _goldBlocks;
@@ -68,7 +68,9 @@ class Runner implements IUuidAndName {
 	public Player getPlayer() { return this._player; }
 	public boolean isInGame() { return this._isInGame; }
 	public boolean isFrozen() { return this._isFrozen; }
-	public boolean hasBeenIdleTooLong() { return this._idleCount > Config.V.idleKickTime; }
+	public boolean hasBeenIdleTooLong() { return this._scoreKeeper.getRunTimeInSecondsAndUpdateScore()-this._lastMoveTime > Config.V.idleKickTimeSeconds; }
+
+
 	public void setIsFrozen(boolean isFrozen) { this._isFrozen = isFrozen; }
 	public void resetHelmet() {
 		Player player = getPlayer();
@@ -102,16 +104,21 @@ class Runner implements IUuidAndName {
 	}
 
 	public void doRepeatedly() {
+		final long currentRuntime = this._scoreKeeper.getRunTimeInMillisecondsAndUpdateScore();
 		if (this._isFrozen || !this._isInGame) {
-			this._idleCount = 0;
+			this._lastMoveTime = currentRuntime;
 			if (!this.isInGame()) return;
 		}
-		updateIdleCount();
-		this._scoreKeeper.updateTimeScore();
+		Block currentBlock = this._player.getLocation().getBlock();
+		if (!lastBlockIsSame(currentBlock)) {
+			this._lastMoveTime = currentRuntime;
+			this._lastBlock = currentBlock;
+		}
 	}
 
 	public boolean movedOneBlock(final Plugin plugin) {
 		if (!this._isInGame) return false;
+		this._scoreKeeper.updateTimeScore();
 		boolean runnerLeftGame = false;
 		final Location currentLocation = updateLocation();
 		final BlockUnderFeet firstBlockUnderFeet = new BlockUnderFeet(currentLocation);
@@ -176,15 +183,6 @@ class Runner implements IUuidAndName {
 		}	
 		 */	
 	}
-	private void updateIdleCount() {
-		Block currentBlock = this._player.getLocation().getBlock();
-		if (lastBlockIsSame(currentBlock)) {
-			this._idleCount ++;
-		} else {
-			this._idleCount = 0;
-			this._lastBlock = currentBlock;
-		}
-	}
 
 	private boolean lastBlockIsSame(final Block currentBlock) {
 		return (this._lastBlock.getX() == currentBlock.getX()) && (this._lastBlock.getZ() == currentBlock.getZ());
@@ -200,7 +198,7 @@ class Runner implements IUuidAndName {
 		this._isInGame = true;
 		this._isFrozen = false;
 		this._scoreKeeper.resetCoins();
-		this._idleCount = 0;
+		this._lastMoveTime = 0;
 		this._stopTeleport = true;
 		this._goldBlocks = new HashMap<Point, Location>();
 		PotionEffectMap.removePotionEffects(this._player);
@@ -210,7 +208,7 @@ class Runner implements IUuidAndName {
 
 	private void teleportToLastCheckPoint() {
 		this._isInGame = true;
-		this._idleCount = 0;
+		this._lastMoveTime = this._scoreKeeper.getRunTimeInMillisecondsAndUpdateScore();
 		PotionEffectMap.removePotionEffects(this._player);
 		this._player.setFireTicks(0);
 		Location location = this._lastCheckPoint;
@@ -269,6 +267,7 @@ class Runner implements IUuidAndName {
 
 	// Player ran over Redstone. End the level and start next or end game
 	private void endLevelOrGame(Plugin plugin) {
+		this._scoreKeeper.updateTimeScore();
 		this._isInGame = false;
 		PotionEffectMap.removePotionEffects(this._player);
 		WinnerFirework.doIt(this._lastLocation);

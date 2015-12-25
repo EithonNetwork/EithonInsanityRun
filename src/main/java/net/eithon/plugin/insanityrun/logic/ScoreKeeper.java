@@ -23,12 +23,12 @@ public class ScoreKeeper {
 		this._scoreDisplay.reset();
 	}
 
-	public void updateTimeScore() {
-		final long currentTimeMillis = System.currentTimeMillis();
-		verbose("updateTimeScore","currentTimeMillis: %d", currentTimeMillis);
-		int runTimeSeconds = (int) Math.round((currentTimeMillis - this._startTime)/1000.0);
-		verbose("updateTimeScore","runTimeSeconds: %d", runTimeSeconds);
-		this._scoreDisplay.setTimeScore(runTimeSeconds);
+	public long updateTimeScore() {
+		return getRunTimeInMillisecondsAndUpdateScore();
+	}
+
+	public void updateTimeScore(long timeInMilliseconds) {
+		this._scoreDisplay.setTimeScore((int) Math.floor(timeInMilliseconds/100.0));
 	}
 
 	public void addCoinScore(int coins) {
@@ -41,6 +41,12 @@ public class ScoreKeeper {
 		this._scoreDisplay.setCoinScore(this._coins);		
 	}
 
+	public long getRunTimeInSecondsAndUpdateScore() { return (long) Math.floor(getRunTimeInMillisecondsAndUpdateScore()/1000.0); }
+	public long getRunTimeInMillisecondsAndUpdateScore() { 
+		final long runTime = System.currentTimeMillis()-this._startTime;
+		updateTimeScore(runTime);
+		return runTime; 
+	}
 	private void verbose(String method, String format, Object... args) {
 		String message = CoreMisc.safeFormat(format, args);
 		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "EithonInsanityRun: ScoreKeeper.%s: %s", method, message);
