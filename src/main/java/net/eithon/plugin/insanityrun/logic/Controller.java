@@ -192,6 +192,13 @@ public class Controller {
 		return true;
 	}
 
+	public boolean resetGame(Player player) {
+		Runner runner = this._runners.get(player);
+		if (runner == null) return true;
+		runner.teleportToSpawn();
+		return true;
+	}
+
 	private void leaveGame(Runner runner) {
 		runner.leaveGame();
 		this._runners.remove(runner.getPlayer());

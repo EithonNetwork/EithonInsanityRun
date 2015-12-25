@@ -13,6 +13,7 @@ public class CommandHandler implements ICommandHandler {
 	private static final String GOTO_COMMAND = "/eir goto <name>";
 	private static final String JOIN_COMMAND = "/eir join_named_arena <name>";
 	private static final String LEAVE_COMMAND = "/eir leave";
+	private static final String RESET_COMMAND = "/eir reset";
 	private static final String LIST_COMMAND = "/eir list";
 	private static final String REMOVE_COMMAND = "/eir remove <name>";
 	private static final String LINK_COMMAND = "/eir link <name 1> <name 2>";
@@ -47,10 +48,12 @@ public class CommandHandler implements ICommandHandler {
 			listCommand(commandParser);
 		} else if (command.equals("goto")) {
 			gotoCommand(commandParser);
-		} else if (command.equals("join")) {
+		} else if (command.equals("join_named_arena")) {
 			joinCommand(commandParser);
 		} else if (command.equals("leave")) {
 			leaveCommand(commandParser);
+		} else if (command.equals("reset")) {
+			resetCommand(commandParser);
 		} else {
 			commandParser.showCommandSyntax();
 		}
@@ -133,6 +136,17 @@ public class CommandHandler implements ICommandHandler {
 		Config.M.leftArena.sendMessage(player, name);
 	}
 
+	void resetCommand(CommandParser commandParser)
+	{
+		if (!commandParser.hasPermissionOrInformSender("eir.reset")) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(2, 2)) return;
+
+		Player player = commandParser.getPlayer();
+		String name =commandParser.getArgumentStringAsLowercase();
+
+		if (!this._controller.resetGame(player)) return;
+	}
+
 	void listCommand(CommandParser commandParser)
 	{
 		if (!commandParser.hasPermissionOrInformSender("eir.list")) return;
@@ -159,6 +173,10 @@ public class CommandHandler implements ICommandHandler {
 			sender.sendMessage(GOTO_COMMAND);
 		} else if (command.equals("join")) {
 			sender.sendMessage(JOIN_COMMAND);
+		} else if (command.equals("leave")) {
+			sender.sendMessage(LEAVE_COMMAND);
+		} else if (command.equals("reset")) {
+			sender.sendMessage(RESET_COMMAND);
 		} else {
 			sender.sendMessage(String.format("Unknown command: %s.", command));
 		}	

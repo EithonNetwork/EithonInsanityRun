@@ -79,7 +79,7 @@ class Runner implements IUuidAndName {
 		if (isFrozen) player.setWalkSpeed(0);
 		else player.setWalkSpeed(0.2f);
 	}
-	
+
 	public void resetHelmet() {
 		Player player = getPlayer();
 		player.getInventory().setHelmet(this._rememberHelmetWorn);
@@ -158,8 +158,10 @@ class Runner implements IUuidAndName {
 			bounceBack();
 			break;
 		case CHECKPOINT:
-			this._lastCheckPoint = this._lastLocation;
-			Config.M.reachedCheckPoint.sendMessage(this._player);
+			if (!this._lastLocation.getBlock().equals(this._lastCheckPoint.getBlock())) {
+				this._lastCheckPoint = this._lastLocation;
+				Config.M.reachedCheckPoint.sendMessage(this._player);
+			}
 			break;
 		case FINISH:
 			endLevelOrGame(plugin);
@@ -214,7 +216,7 @@ class Runner implements IUuidAndName {
 		return this._lastLocation;
 	}
 
-	private void teleportToSpawn() {
+	void teleportToSpawn() {
 		this._isInGame = true;
 		this._isFrozen = false;
 		this._scoreKeeper.resetCoins();
@@ -223,6 +225,8 @@ class Runner implements IUuidAndName {
 		this._goldBlocks = new HashMap<Point, Location>();
 		PotionEffectMap.removePotionEffects(this._player);
 		this._player.setFireTicks(0);
+		this._player.setWalkSpeed(0.2f);
+		this._player.setFoodLevel(20);
 		safeTeleport(this._arena.getSpawnLocation());
 	}
 
@@ -233,15 +237,21 @@ class Runner implements IUuidAndName {
 		this._player.setFireTicks(0);
 		Location location = this._lastCheckPoint;
 		if (location == null) location = this._arena.getSpawnLocation();
+		else revertGoldCoins();
+		safeTeleport(location);
+	}
+
+	public void revertGoldCoins() {
+		if (this._lastCheckPoint == null) return;
 		Iterator<Entry<Point, Location>> iterator = this._goldBlocks.entrySet().iterator();
 		while (iterator.hasNext()) {
 			final Entry<Point,Location> entry = iterator.next();
+			if ((entry == null) || (entry.getValue() == null)) continue;
 			if (entry.getValue().equals(this._lastCheckPoint)) {
 				this._scoreKeeper.addCoinScore(-1);
 				iterator.remove();
 			}
 		}
-		safeTeleport(location);
 	}
 
 	private void teleportToStart() {
