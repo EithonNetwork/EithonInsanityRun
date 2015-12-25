@@ -1,7 +1,5 @@
 package net.eithon.plugin.insanityrun.logic;
 
-import java.awt.Point;
-
 import net.eithon.plugin.insanityrun.Config;
 
 import org.bukkit.Location;
