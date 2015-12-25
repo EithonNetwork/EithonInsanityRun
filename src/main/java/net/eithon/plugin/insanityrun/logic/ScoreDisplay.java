@@ -64,6 +64,6 @@ class ScoreDisplay {
 	}
 
 	public void disable() {
-		this._player.setScoreboard(null);
+		this._board.clearSlot(DisplaySlot.SIDEBAR);
 	}
 }

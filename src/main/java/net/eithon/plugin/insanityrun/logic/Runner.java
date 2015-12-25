@@ -73,7 +73,13 @@ class Runner implements IUuidAndName {
 	public boolean hasBeenIdleTooLong() { return this._scoreKeeper.getRunTimeInMillisecondsAndUpdateScore()-this._lastMoveTime > Config.V.idleKickTimeSeconds*1000; }
 
 
-	public void setIsFrozen(boolean isFrozen) { this._isFrozen = isFrozen; }
+	public void setIsFrozen(boolean isFrozen) { 
+		this._isFrozen = isFrozen;
+		Player player = getPlayer();
+		if (isFrozen) player.setWalkSpeed(0);
+		else player.setWalkSpeed(0.2f);
+	}
+	
 	public void resetHelmet() {
 		Player player = getPlayer();
 		player.getInventory().setHelmet(this._rememberHelmetWorn);
@@ -278,7 +284,7 @@ class Runner implements IUuidAndName {
 					leaveGame();
 				}
 			}
-		}, TimeMisc.secondsToTicks(2));
+		}, Config.V.restartAfterTicks);
 		// Will leave game?
 		return (!Config.V.waterRestartsRun && !Config.V.useCheckpoints);
 	}

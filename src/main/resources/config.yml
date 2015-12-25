@@ -34,7 +34,7 @@ PotionDuration: 2
 #
 # Should water restart run?
 #
-WaterRestartsRun: true
+WaterRestartsRun: false
 
 #
 # Should we use checkpoints? (WaterRestartsRun = true overrides this)
@@ -61,6 +61,10 @@ PumpkinHelmetTimeSpan: 2s
 #
 FreezeTimeSpan: 2s
 
+#
+# Time to wait before restart after fail. This time is needed to give the player time to realize his/her mistake
+#
+RestartTimeSpan: 10t
 
 
 commands:
