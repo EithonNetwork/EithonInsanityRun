@@ -62,7 +62,7 @@ class Runner implements IUuidAndName {
 
 	public void maybeLeaveGameBecauseOfTeleport() {
 		if (!this._stopTeleport) return;
-		verbose("maybeLeaveGameBecauseOfTeleport", "Leaving game");
+		Config.M.teleportKick.sendMessage(this._player);
 		leaveGame(false, false);
 	}
 
@@ -159,12 +159,14 @@ class Runner implements IUuidAndName {
 			break;
 		case CHECKPOINT:
 			this._lastCheckPoint = this._lastLocation;
+			Config.M.reachedCheckPoint.sendMessage(this._player);
 			break;
 		case FINISH:
 			endLevelOrGame(plugin);
 			break;
 		case WATER:
 		case LAVA:
+			Config.M.failRestart.sendMessage(this._player);
 			runnerLeftGame = restart(plugin);
 			break;
 		default:
@@ -296,10 +298,7 @@ class Runner implements IUuidAndName {
 		PotionEffectMap.removePotionEffects(this._player);
 		WinnerFirework.doIt(this._lastLocation);
 		if (Config.V.broadcastWins) {
-			//InsanityRun.plugin.getServer().broadcastMessage(ChatColor.GOLD + "[Insanity Run]" + String.format(InsanityRun.broadcastWinsText, colourise("&3"+playerName+"&6"), colourise("&9"+arenaName+"&6"), colourise("&a"+currentPlayerObject.getCoins()+"&6"), InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".gameCurrency"), colourise("&f"+formatIntoHHMMSS(runTime))));
-		}
-		else {
-			//player.sendMessage(ChatColor.GOLD + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".gameOver") + " " + colourise("&a"+currentPlayerObject.getCoins()+"&6") + " " + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".gameCurrency") + " Time: " + colourise("&f"+formatIntoHHMMSS(runTime)));
+			Config.M.broadcastSuccess.broadcastMessage(this._player.getName(), this._arena.getName(), 5.7);
 		}
 
 		/*

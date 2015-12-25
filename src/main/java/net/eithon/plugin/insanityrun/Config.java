@@ -57,6 +57,12 @@ public class Config {
 		public static ConfigurableMessage gotoArena;
 		public static ConfigurableMessage arenaInfo;
 		public static ConfigurableMessage joinArena;
+		public static ConfigurableMessage leftArena;
+		public static ConfigurableMessage reachedCheckPoint;
+		public static ConfigurableMessage failRestart;
+		public static ConfigurableMessage idleKick;
+		public static ConfigurableMessage teleportKick;
+		public static ConfigurableMessage broadcastSuccess;
 
 		static void load(Configuration config) {
 			playerFinished = config.getConfigurableMessage(
@@ -77,12 +83,30 @@ public class Config {
 			gotoArena = config.getConfigurableMessage(
 					"messages.GotoArena", 1, 
 					"You have been teleported to Arena %.");
-			joinArena = config.getConfigurableMessage(
-					"messages.JoinArena", 1, 
-					"You have joined Arena %.");
 			arenaInfo = config.getConfigurableMessage(
 					"messages.ArenaInfo", 1, 
 					"%s");
+			joinArena = config.getConfigurableMessage(
+					"messages.JoinArena", 1, 
+					"You have joined Arena %.");
+			leftArena = config.getConfigurableMessage(
+					"messages.LeftArena", 1, 
+					"You have left Arena %.");
+			reachedCheckPoint = config.getConfigurableMessage(
+					"messages.ReachedCheckPoint", 0, 
+					"You have reached a check point.");
+			failRestart = config.getConfigurableMessage(
+					"messages.FailRestart", 0, 
+					"You failed, try again.");
+			idleKick = config.getConfigurableMessage(
+					"messages.IdleKick", 0, 
+					"You were idle too long.");
+			teleportKick = config.getConfigurableMessage(
+					"messages.TeleportKick", 0, 
+					"You are not allowed to teleport in a game.");
+			broadcastSuccess = config.getConfigurableMessage(
+					"messages.BroadcastSuccess", 3, 
+					"Player %s completed arena %s in %.1f seconds.");
 		}		
 	}
 

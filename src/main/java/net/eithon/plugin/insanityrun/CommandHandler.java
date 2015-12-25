@@ -11,7 +11,8 @@ import org.bukkit.entity.Player;
 public class CommandHandler implements ICommandHandler {
 	private static final String ADD_COMMAND = "/eir add <name> [<up speed> <forward speed>]";
 	private static final String GOTO_COMMAND = "/eir goto <name>";
-	private static final String JOIN_COMMAND = "/eir join <name>";
+	private static final String JOIN_COMMAND = "/eir join_named_arena <name>";
+	private static final String LEAVE_COMMAND = "/eir leave";
 	private static final String LIST_COMMAND = "/eir list";
 	private static final String REMOVE_COMMAND = "/eir remove <name>";
 	private static final String LINK_COMMAND = "/eir link <name 1> <name 2>";
@@ -48,6 +49,8 @@ public class CommandHandler implements ICommandHandler {
 			gotoCommand(commandParser);
 		} else if (command.equals("join")) {
 			joinCommand(commandParser);
+		} else if (command.equals("leave")) {
+			leaveCommand(commandParser);
 		} else {
 			commandParser.showCommandSyntax();
 		}
@@ -116,6 +119,18 @@ public class CommandHandler implements ICommandHandler {
 
 		if (!this._controller.joinArena(player, name)) return;
 		Config.M.joinArena.sendMessage(player, name);
+	}
+
+	void leaveCommand(CommandParser commandParser)
+	{
+		if (!commandParser.hasPermissionOrInformSender("eir.leave")) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(2, 2)) return;
+
+		Player player = commandParser.getPlayer();
+		String name =commandParser.getArgumentStringAsLowercase();
+
+		if (!this._controller.leaveGame(player)) return;
+		Config.M.leftArena.sendMessage(player, name);
 	}
 
 	void listCommand(CommandParser commandParser)

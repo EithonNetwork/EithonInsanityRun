@@ -7,7 +7,7 @@ depend: [EithonLibrary]
 commands:
   eir:
     description: Control jump pads
-    usage: /eir add | link | remove  | goto | list | join
+    usage: /eir add | link | remove  | goto | list | join_named_arena | leave
     permission-message: You don't have <permission>
 permissions:
   eir.*:
@@ -19,6 +19,7 @@ permissions:
     eir.list: true
     eir.goto: true
     eir.join: true
+    eir.leave: true
   eir.add:
     description: Access to /eir add command
     default: op
@@ -36,4 +37,7 @@ permissions:
     default: op
   eir.join:
     description: Access to /eir join command
+    default: op
+  eir.leave:
+    description: Access to /eir leave command
     default: op

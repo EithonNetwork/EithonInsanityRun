@@ -49,7 +49,7 @@ TelePortAfterEnd: true
 #
 # Max jump height over a block and still count as touching the block
 #
-MaxHeightOverBlock: 2
+MaxHeightOverBlock: 1
 
 #
 # The time span that the runner will keep a pumpkin helmet after receiving it
@@ -96,14 +96,37 @@ messages:
 
   #
   # Parameters: <arena name> (%s)
-  JoinArena: You have joined Arena %s.
-
-  #
-  # Parameters: <arena name> (%s)
   UnknownArena: Unknown arena (%s).
-
 
   #
   # Parameters: <arena name> (%s)
   Arena info: '%s'
+
+  #
+  # Parameters: <arena name> (%s)
+  JoinArena: You have joined Arena %s.
+
+  #
+  # Parameters: <arena name> (%s)
+  LeftArena: You have left Arena %.
+
+  #
+  # Parameters: -
+  ReachedCheckPoint: You have reached a check point.
+
+  #
+  # Parameters: -
+  FailRestart: You failed, try again.
+
+  #
+  # Parameters: -
+  IdleKick: You were idle too long.
+
+  #
+  # Parameters: -
+  TeleportKick: You are not allowed to teleport in a game.
+
+  #
+  # Parameters: <player name> (%s), <arena name> (%s), <time in seconds> (%f)
+  BroadcastSuccess: Player %s completed arena %s in %.1f seconds.
   
