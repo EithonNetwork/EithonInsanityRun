@@ -3,6 +3,8 @@ package net.eithon.plugin.insanityrun.logic;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.UUID;
 
 import net.eithon.library.core.CoreMisc;
 import net.eithon.library.core.PlayerCollection;
@@ -135,16 +137,16 @@ public class Controller {
 	}
 
 	void doEverySecond() {
-		verbose("doEverySecond", "Enter");
-		Iterator<Runner> iterator = this._runners.iterator();
+		Iterator<Entry<UUID, Runner>> iterator = this._runners.entrySet().iterator();
 		while(iterator.hasNext()) {
-			Runner runner = iterator.next();
+			Runner runner = iterator.next().getValue();
 			runner.doRepeatedly();
 			if (runner.hasBeenIdleTooLong()) {
-				leaveGame(runner);
+				runner.leaveGame();
+				iterator.remove();
 			}
 		}
-		verbose("doEverySecond", "Leave");
+		if (this._runners.size()==0) endRepeatingTask();
 	}
 
 	public void endRepeatingTask() {
@@ -200,12 +202,11 @@ public class Controller {
 
 	// When we need to kick all runners, do that with refund
 	public void kickAllRunners() {
-		Iterator<Runner> iterator = this._runners.iterator();
+		Iterator<Entry<UUID, Runner>> iterator = this._runners.entrySet().iterator();
 		while (iterator.hasNext()) {
-			Runner runner = iterator.next();
-			final Player player = runner.getPlayer();
+			Runner runner = iterator.next().getValue();
 			runner.leaveGameWithRefund();
-			this._runners.remove(player);
+			iterator.remove();
 		}
 	}
 

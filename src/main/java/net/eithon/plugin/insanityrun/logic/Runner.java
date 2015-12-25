@@ -222,7 +222,7 @@ class Runner implements IUuidAndName {
 			final Entry<Point,Location> entry = iterator.next();
 			if (entry.getValue().equals(this._lastCheckPoint)) {
 				this._scoreKeeper.addCoinScore(-1);
-				this._goldBlocks.remove(entry.getKey());
+				iterator.remove();
 			}
 		}
 		safeTeleport(location);

@@ -23,11 +23,9 @@ class BlockUnderFeet {
 	}
 
 	BlockUnderFeet(final Location feetLocation) {
-		verbose("constructor", "Enter");
 		this._block = findFirstBlockUnderFeet(feetLocation);
 		this._runnerEffect = translateMaterialToRunnerEffect();
 		verbose("constructor", "RunnerEffect: %s", this._runnerEffect.toString());
-		verbose("constructor", "Leave");
 	}
 
 	private Block findFirstBlockUnderFeet(final Location feetLocation) {
@@ -44,7 +42,7 @@ class BlockUnderFeet {
 			case STATIONARY_LAVA:
 				return (delta == 0) ? block : null;
 			default:
-				return (delta > 0) ? block : null;
+				return block;
 			}
 		}
 		return null;
