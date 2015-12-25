@@ -28,7 +28,7 @@ public class ScoreKeeper {
 	}
 
 	public void updateTimeScore(long timeInMilliseconds) {
-		this._scoreDisplay.setTimeScore((int) Math.floor(timeInMilliseconds/100.0));
+		this._scoreDisplay.setTimeScore((int) Math.floor(timeInMilliseconds/1000.0));
 	}
 
 	public void addCoinScore(int coins) {
@@ -50,5 +50,9 @@ public class ScoreKeeper {
 	private void verbose(String method, String format, Object... args) {
 		String message = CoreMisc.safeFormat(format, args);
 		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "EithonInsanityRun: ScoreKeeper.%s: %s", method, message);
+	}
+
+	public void disable() {
+		this._scoreDisplay.disable();
 	}
 }

@@ -25,6 +25,7 @@ public class Config {
 		public static int maxHeightOverBlock;
 		public static long pumpkinHelmetSeconds;
 		public static long freezeSeconds;
+		public static long restartAfterTicks;
 
 		static void load(Configuration config) {
 			useVault = config.getBoolean("UseVault", false);
@@ -37,6 +38,7 @@ public class Config {
 			maxHeightOverBlock =  config.getInt("MaxHeightOverBlock", 2);
 			pumpkinHelmetSeconds = config.getSeconds("PumpkinHelmetTimeSpan", 2);
 			freezeSeconds = config.getSeconds("FreezeTimeSpan", 2);
+			restartAfterTicks = config.getTicks("RestartTimeSpan", 10);
 		}
 
 	}

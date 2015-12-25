@@ -18,6 +18,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -61,6 +62,7 @@ class Runner implements IUuidAndName {
 
 	public void maybeLeaveGameBecauseOfTeleport() {
 		if (!this._stopTeleport) return;
+		verbose("maybeLeaveGameBecauseOfTeleport", "Leaving game");
 		leaveGame(false, false);
 	}
 
@@ -68,10 +70,16 @@ class Runner implements IUuidAndName {
 	public Player getPlayer() { return this._player; }
 	public boolean isInGame() { return this._isInGame; }
 	public boolean isFrozen() { return this._isFrozen; }
-	public boolean hasBeenIdleTooLong() { return this._scoreKeeper.getRunTimeInSecondsAndUpdateScore()-this._lastMoveTime > Config.V.idleKickTimeSeconds; }
+	public boolean hasBeenIdleTooLong() { return this._scoreKeeper.getRunTimeInMillisecondsAndUpdateScore()-this._lastMoveTime > Config.V.idleKickTimeSeconds*1000; }
 
 
-	public void setIsFrozen(boolean isFrozen) { this._isFrozen = isFrozen; }
+	public void setIsFrozen(boolean isFrozen) { 
+		this._isFrozen = isFrozen;
+		Player player = getPlayer();
+		if (isFrozen) player.setWalkSpeed(0);
+		else player.setWalkSpeed(0.2f);
+	}
+	
 	public void resetHelmet() {
 		Player player = getPlayer();
 		player.getInventory().setHelmet(this._rememberHelmetWorn);
@@ -89,9 +97,11 @@ class Runner implements IUuidAndName {
 
 	public void leaveGameWithRefund() { leaveGame(true, true);	}
 
-	private void leaveGame(boolean refund, boolean teleportToStart) {	
+	private void leaveGame(boolean refund, boolean teleportToStart) {
+		verbose("leaveGame", "Enter refund: %s, teleportToStart: %s",
+				refund?"true":"false", teleportToStart?"true":"false");
 		this._isInGame = false;
-		this._scoreKeeper.reset();
+		this._scoreKeeper.disable();
 		final Player player = this._player;
 		if (player == null) return;	
 		PotionEffectMap.removePotionEffects(player);
@@ -101,18 +111,21 @@ class Runner implements IUuidAndName {
 		if (refund) refundMoney();
 		if (teleportToStart) teleportToStart();
 		this._arena.runnerLeft(this);
+		verbose("leaveGame", "Leave");
 	}
 
 	public void doRepeatedly() {
 		final long currentRuntime = this._scoreKeeper.getRunTimeInMillisecondsAndUpdateScore();
 		if (this._isFrozen || !this._isInGame) {
 			this._lastMoveTime = currentRuntime;
-			if (!this.isInGame()) return;
+			if (!this._isInGame) return;
 		}
 		Block currentBlock = this._player.getLocation().getBlock();
 		if (!lastBlockIsSame(currentBlock)) {
 			this._lastMoveTime = currentRuntime;
 			this._lastBlock = currentBlock;
+		} else {
+			this._player.playSound(this._lastLocation, Sound.ENDERMAN_IDLE, 1, 1);
 		}
 	}
 
@@ -161,11 +174,15 @@ class Runner implements IUuidAndName {
 	}
 
 	private void jump() {
+		verbose("jump", "Enter");
 		this._player.setVelocity(this._player.getVelocity().setY(1.5));
+		verbose("jump", "Leave");
 	}
 
 	private void bounceBack() {
+		verbose("bounceBack", "Enter");
 		this._player.setVelocity(this._lastLocation.getDirection().multiply(-1));
+		verbose("bounceBack", "Leave");
 	}
 
 	public void teleportToLastLocation() {
@@ -191,6 +208,7 @@ class Runner implements IUuidAndName {
 	private Location updateLocation() {
 		this._lastLocation = this._player.getLocation();
 		this._lastBlock = this._lastLocation.getBlock();
+		this._lastMoveTime = this._scoreKeeper.getRunTimeInMillisecondsAndUpdateScore();
 		return this._lastLocation;
 	}
 
@@ -218,7 +236,7 @@ class Runner implements IUuidAndName {
 			final Entry<Point,Location> entry = iterator.next();
 			if (entry.getValue().equals(this._lastCheckPoint)) {
 				this._scoreKeeper.addCoinScore(-1);
-				this._goldBlocks.remove(entry.getKey());
+				iterator.remove();
 			}
 		}
 		safeTeleport(location);
@@ -239,10 +257,15 @@ class Runner implements IUuidAndName {
 	}
 
 	private boolean maybeGetCoin(BlockUnderFeet firstBlockUnderFeet) {
+		verbose("maybeGetCoin", "Enter");
 		Point point = new Point(firstBlockUnderFeet.getBlock().getX(), firstBlockUnderFeet.getBlock().getY());
-		if (this._goldBlocks.containsKey(point)) return false;
+		if (this._goldBlocks.containsKey(point)) {
+			verbose("maybeGetCoin", "Leave false");
+			return false;
+		}
 		this._goldBlocks.put(point, this._lastCheckPoint);
 		this._scoreKeeper.addCoinScore(1);
+		verbose("maybeGetCoin", "Leave true");
 		return true;
 	}
 
@@ -251,16 +274,17 @@ class Runner implements IUuidAndName {
 		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			public void run() {
 				if (Config.V.waterRestartsRun) {
+					verbose("restart", "WaterRestartsRun");
 					teleportToSpawn();
-				}
-				else if (Config.V.useCheckpoints) {
+				} else if (Config.V.useCheckpoints) {
+					verbose("restart", "UseCheckPoints");
 					teleportToLastCheckPoint();
-				}
-				else {
+				} else {
+					verbose("restart", "LeaveGame");
 					leaveGame();
 				}
 			}
-		}, TimeMisc.secondsToTicks(1)); // 20 ticks per second x 1 seconds
+		}, Config.V.restartAfterTicks);
 		// Will leave game?
 		return (!Config.V.waterRestartsRun && !Config.V.useCheckpoints);
 	}

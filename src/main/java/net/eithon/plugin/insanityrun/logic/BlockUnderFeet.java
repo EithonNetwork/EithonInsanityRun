@@ -1,5 +1,8 @@
 package net.eithon.plugin.insanityrun.logic;
 
+import net.eithon.library.core.CoreMisc;
+import net.eithon.library.extensions.EithonPlugin;
+import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.plugin.insanityrun.Config;
 
 import org.bukkit.Location;
@@ -7,16 +10,25 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 
 class BlockUnderFeet {
+	private static EithonPlugin eithonPlugin;
 	private Block _block;
 	private RunnerEffect _runnerEffect;
 
 	public enum RunnerEffect {
 		NONE, COIN, SLOW, SPEED, JUMP, PUMPKIN_HELMET, FREEZE, BOUNCE, CHECKPOINT, FINISH, WATER, LAVA, DRUNK, BLIND, DARK
 	}
+	
+	static void initialize(EithonPlugin plugin) {
+		eithonPlugin = plugin;
+	}
 
 	BlockUnderFeet(final Location feetLocation) {
-		this._block = null;
-		this._runnerEffect = RunnerEffect.NONE;
+		this._block = findFirstBlockUnderFeet(feetLocation);
+		this._runnerEffect = translateMaterialToRunnerEffect();
+		verbose("constructor", "RunnerEffect: %s", this._runnerEffect.toString());
+	}
+
+	private Block findFirstBlockUnderFeet(final Location feetLocation) {
 		Block feetBlock = feetLocation.getBlock();
 		for (int delta = 0; delta <= Config.V.maxHeightOverBlock; delta++) {
 			Block block = feetBlock.getWorld().getBlockAt(feetBlock.getX(),  feetBlock.getY()-delta, feetBlock.getZ());
@@ -28,12 +40,12 @@ class BlockUnderFeet {
 			case STATIONARY_WATER:
 			case LAVA:
 			case STATIONARY_LAVA:
-				if (delta == 0) this._block = block;
+				return (delta == 0) ? block : null;
 			default:
-				if (delta > 0) this._block = block;
+				return block;
 			}
 		}
-		this._runnerEffect = translateMaterialToRunnerEffect();
+		return null;
 	}
 
 	public boolean notFound() { return this._block == null; }
@@ -70,4 +82,9 @@ class BlockUnderFeet {
 	}
 
 	Block getBlock() { return this._block;}
+	
+	private static void verbose(String method, String format, Object... args) {
+		String message = CoreMisc.safeFormat(format, args);
+		eithonPlugin.getEithonLogger().debug(DebugPrintLevel.VERBOSE, "BlockUnderFeet.%s: %s", method, message);
+	}
 }

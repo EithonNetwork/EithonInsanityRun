@@ -1,5 +1,6 @@
 package net.eithon.plugin.insanityrun.logic;
 
+import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.insanityrun.Config;
 
 import org.bukkit.entity.Player;
@@ -13,7 +14,7 @@ class PotionEffectInfo {
 	
 	public PotionEffectInfo(PotionEffectType potionEffectType, int duration, int amplification) {
 		this._potionEffectType = potionEffectType;
-		this._duration = duration;
+		this._duration = (int) TimeMisc.secondsToTicks(Config.V.potionDuration*duration);
 		this._amplification = amplification;
 	}
 
@@ -22,6 +23,6 @@ class PotionEffectInfo {
 	}
 
 	public void addPotionEffect(Player player) {
-		player.addPotionEffect(new PotionEffect(this._potionEffectType, Config.V.potionDuration*this._duration, this._amplification));
+		player.addPotionEffect(new PotionEffect(this._potionEffectType, this._duration, this._amplification));
 	}
 }
