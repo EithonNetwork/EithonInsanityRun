@@ -61,6 +61,7 @@ class Runner implements IUuidAndName {
 
 	public void maybeLeaveGameBecauseOfTeleport() {
 		if (!this._stopTeleport) return;
+		verbose("maybeLeaveGameBecauseOfTeleport", "Leaving game");
 		leaveGame(false, false);
 	}
 
@@ -89,7 +90,9 @@ class Runner implements IUuidAndName {
 
 	public void leaveGameWithRefund() { leaveGame(true, true);	}
 
-	private void leaveGame(boolean refund, boolean teleportToStart) {	
+	private void leaveGame(boolean refund, boolean teleportToStart) {
+		verbose("leaveGame", "Enter refund: %s, teleportToStart: %s",
+				refund?"true":"false", teleportToStart?"true":"false");
 		this._isInGame = false;
 		this._scoreKeeper.reset();
 		final Player player = this._player;
@@ -101,13 +104,14 @@ class Runner implements IUuidAndName {
 		if (refund) refundMoney();
 		if (teleportToStart) teleportToStart();
 		this._arena.runnerLeft(this);
+		verbose("leaveGame", "Leave");
 	}
 
 	public void doRepeatedly() {
 		final long currentRuntime = this._scoreKeeper.getRunTimeInMillisecondsAndUpdateScore();
 		if (this._isFrozen || !this._isInGame) {
 			this._lastMoveTime = currentRuntime;
-			if (!this.isInGame()) return;
+			if (!this._isInGame) return;
 		}
 		Block currentBlock = this._player.getLocation().getBlock();
 		if (!lastBlockIsSame(currentBlock)) {
@@ -195,6 +199,7 @@ class Runner implements IUuidAndName {
 	private Location updateLocation() {
 		this._lastLocation = this._player.getLocation();
 		this._lastBlock = this._lastLocation.getBlock();
+		this._lastMoveTime = this._scoreKeeper.getRunTimeInMillisecondsAndUpdateScore();
 		return this._lastLocation;
 	}
 
@@ -260,16 +265,17 @@ class Runner implements IUuidAndName {
 		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			public void run() {
 				if (Config.V.waterRestartsRun) {
+					verbose("restart", "WaterRestartsRun");
 					teleportToSpawn();
-				}
-				else if (Config.V.useCheckpoints) {
+				} else if (Config.V.useCheckpoints) {
+					verbose("restart", "UseCheckPoints");
 					teleportToLastCheckPoint();
-				}
-				else {
+				} else {
+					verbose("restart", "LeaveGame");
 					leaveGame();
 				}
 			}
-		}, TimeMisc.secondsToTicks(1)); // 20 ticks per second x 1 seconds
+		}, TimeMisc.secondsToTicks(2));
 		// Will leave game?
 		return (!Config.V.waterRestartsRun && !Config.V.useCheckpoints);
 	}

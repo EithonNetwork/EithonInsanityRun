@@ -1,7 +1,7 @@
 package net.eithon.plugin.insanityrun.logic;
 
 import net.eithon.library.core.CoreMisc;
-import net.eithon.library.plugin.Logger;
+import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.time.ITemporaryEffect;
 import net.eithon.library.time.TemporaryEffect;
@@ -9,13 +9,14 @@ import net.eithon.library.time.TemporaryEffect;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 
 class TemporaryEffects {
 	public static TemporaryEffect pumpkinHelmet;
 	public static TemporaryEffect freeze;
+	private static EithonPlugin eithonPlugin;
 	
-	public static void initialize(Plugin plugin) {
+	public static void initialize(EithonPlugin plugin) {
+		eithonPlugin = plugin;
 		pumpkinHelmet = new TemporaryEffect(plugin, new ITemporaryEffect() {
 			@Override
 			public Object Do(Object... args) {
@@ -48,13 +49,13 @@ class TemporaryEffects {
 				verbose("freeze Undo", "Enter");
 				Runner runner = (Runner) args[0];
 				runner.setIsFrozen(false);
-				verbose("freeze Do", "Leave");
+				verbose("freeze Undo", "Leave");
 			}
 		});
 	}
 	
 	private static void verbose(String method, String format, Object... args) {
 		String message = CoreMisc.safeFormat(format, args);
-		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "EithonInsanityRun: TemporaryEffects.%s: %s", method, message);
+		eithonPlugin.getEithonLogger().debug(DebugPrintLevel.VERBOSE, "TemporaryEffects.%s: %s", method, message);
 	}
 }
