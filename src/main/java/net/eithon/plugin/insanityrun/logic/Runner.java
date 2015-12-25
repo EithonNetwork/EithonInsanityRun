@@ -69,7 +69,7 @@ class Runner implements IUuidAndName {
 	public Player getPlayer() { return this._player; }
 	public boolean isInGame() { return this._isInGame; }
 	public boolean isFrozen() { return this._isFrozen; }
-	public boolean hasBeenIdleTooLong() { return this._scoreKeeper.getRunTimeInSecondsAndUpdateScore()-this._lastMoveTime > Config.V.idleKickTimeSeconds; }
+	public boolean hasBeenIdleTooLong() { return this._scoreKeeper.getRunTimeInMillisecondsAndUpdateScore()-this._lastMoveTime > Config.V.idleKickTimeSeconds*1000; }
 
 
 	public void setIsFrozen(boolean isFrozen) { this._isFrozen = isFrozen; }
