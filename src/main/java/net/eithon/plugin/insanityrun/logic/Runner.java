@@ -161,11 +161,15 @@ class Runner implements IUuidAndName {
 	}
 
 	private void jump() {
+		verbose("jump", "Enter");
 		this._player.setVelocity(this._player.getVelocity().setY(1.5));
+		verbose("jump", "Leave");
 	}
 
 	private void bounceBack() {
+		verbose("bounceBack", "Enter");
 		this._player.setVelocity(this._lastLocation.getDirection().multiply(-1));
+		verbose("bounceBack", "Leave");
 	}
 
 	public void teleportToLastLocation() {
@@ -239,10 +243,15 @@ class Runner implements IUuidAndName {
 	}
 
 	private boolean maybeGetCoin(BlockUnderFeet firstBlockUnderFeet) {
+		verbose("maybeGetCoin", "Enter");
 		Point point = new Point(firstBlockUnderFeet.getBlock().getX(), firstBlockUnderFeet.getBlock().getY());
-		if (this._goldBlocks.containsKey(point)) return false;
+		if (this._goldBlocks.containsKey(point)) {
+			verbose("maybeGetCoin", "Leave false");
+			return false;
+		}
 		this._goldBlocks.put(point, this._lastCheckPoint);
 		this._scoreKeeper.addCoinScore(1);
+		verbose("maybeGetCoin", "Leave true");
 		return true;
 	}
 

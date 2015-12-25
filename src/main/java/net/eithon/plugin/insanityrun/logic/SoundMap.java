@@ -2,6 +2,9 @@ package net.eithon.plugin.insanityrun.logic;
 
 import java.util.HashMap;
 
+import net.eithon.library.core.CoreMisc;
+import net.eithon.library.extensions.EithonPlugin;
+import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.plugin.insanityrun.logic.BlockUnderFeet.RunnerEffect;
 
 import org.bukkit.Location;
@@ -9,8 +12,10 @@ import org.bukkit.Sound;
 
 class SoundMap {
 	private static HashMap<RunnerEffect, SoundInfo> soundMap;
+	private static EithonPlugin eithonPlugin;
 	
-	static {
+	static void initialize(EithonPlugin plugin) {
+		eithonPlugin = plugin;
 		soundMap = new HashMap<RunnerEffect, SoundInfo>();
 		soundMap.put(RunnerEffect.COIN, new SoundInfo(Sound.ORB_PICKUP));
 		soundMap.put(RunnerEffect.JUMP, new SoundInfo(Sound.EXPLODE));
@@ -27,8 +32,14 @@ class SoundMap {
 	}
 	
 	public static void playSound(RunnerEffect runnerEffect, Location location) {
+		verbose("playSound", "RunnerEffect: %s", runnerEffect.toString());
 		SoundInfo soundInfo = soundMap.get(runnerEffect);
 		if (soundInfo == null) return;
 		soundInfo.play(location);
+	}
+	
+	private static void verbose(String method, String format, Object... args) {
+		String message = CoreMisc.safeFormat(format, args);
+		eithonPlugin.getEithonLogger().debug(DebugPrintLevel.VERBOSE, "SoundMap.%s: %s", method, message);
 	}
 }

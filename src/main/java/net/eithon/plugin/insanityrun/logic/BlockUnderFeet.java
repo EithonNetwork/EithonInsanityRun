@@ -1,5 +1,8 @@
 package net.eithon.plugin.insanityrun.logic;
 
+import net.eithon.library.core.CoreMisc;
+import net.eithon.library.extensions.EithonPlugin;
+import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.plugin.insanityrun.Config;
 
 import org.bukkit.Location;
@@ -7,14 +10,20 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 
 class BlockUnderFeet {
+	private static EithonPlugin eithonPlugin;
 	private Block _block;
 	private RunnerEffect _runnerEffect;
 
 	public enum RunnerEffect {
 		NONE, COIN, SLOW, SPEED, JUMP, PUMPKIN_HELMET, FREEZE, BOUNCE, CHECKPOINT, FINISH, WATER, LAVA, DRUNK, BLIND, DARK
 	}
+	
+	static void initialize(EithonPlugin plugin) {
+		eithonPlugin = plugin;
+	}
 
 	BlockUnderFeet(final Location feetLocation) {
+		verbose("constructor", "Enter");
 		this._block = null;
 		this._runnerEffect = RunnerEffect.NONE;
 		Block feetBlock = feetLocation.getBlock();
@@ -33,7 +42,10 @@ class BlockUnderFeet {
 				if (delta > 0) this._block = block;
 			}
 		}
-		this._runnerEffect = translateMaterialToRunnerEffect();
+		RunnerEffect runnerEffect = translateMaterialToRunnerEffect();
+		verbose("constructor", "RunnerEffect: %s", runnerEffect.toString());
+		this._runnerEffect = runnerEffect;
+		verbose("constructor", "Leave");
 	}
 
 	public boolean notFound() { return this._block == null; }
@@ -70,4 +82,9 @@ class BlockUnderFeet {
 	}
 
 	Block getBlock() { return this._block;}
+	
+	private static void verbose(String method, String format, Object... args) {
+		String message = CoreMisc.safeFormat(format, args);
+		eithonPlugin.getEithonLogger().debug(DebugPrintLevel.VERBOSE, "BlockUnderFeet.%s: %s", method, message);
+	}
 }

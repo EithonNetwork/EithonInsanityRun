@@ -32,6 +32,9 @@ public class Controller {
 		this._runners = new PlayerCollection<Runner>();
 		ScoreDisplay.initialize();
 		TemporaryEffects.initialize(eithonPlugin);
+		SoundMap.initialize(eithonPlugin);
+		PotionEffectMap.initialize(eithonPlugin);
+		BlockUnderFeet.initialize(eithonPlugin);
 		this._idleTask = null;
 		load();
 	}
