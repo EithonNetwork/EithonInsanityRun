@@ -62,7 +62,7 @@ class Runner implements IUuidAndName {
 
 	public void maybeLeaveGameBecauseOfTeleport() {
 		if (!this._stopTeleport) return;
-		verbose("maybeLeaveGameBecauseOfTeleport", "Leaving game");
+		Config.M.teleportKick.sendMessage(this._player);
 		leaveGame(false, false);
 	}
 
@@ -79,7 +79,7 @@ class Runner implements IUuidAndName {
 		if (isFrozen) player.setWalkSpeed(0);
 		else player.setWalkSpeed(0.2f);
 	}
-	
+
 	public void resetHelmet() {
 		Player player = getPlayer();
 		player.getInventory().setHelmet(this._rememberHelmetWorn);
@@ -158,13 +158,17 @@ class Runner implements IUuidAndName {
 			bounceBack();
 			break;
 		case CHECKPOINT:
-			this._lastCheckPoint = this._lastLocation;
+			if (!this._lastLocation.getBlock().equals(this._lastCheckPoint.getBlock())) {
+				this._lastCheckPoint = this._lastLocation;
+				Config.M.reachedCheckPoint.sendMessage(this._player);
+			}
 			break;
 		case FINISH:
 			endLevelOrGame(plugin);
 			break;
 		case WATER:
 		case LAVA:
+			Config.M.failRestart.sendMessage(this._player);
 			runnerLeftGame = restart(plugin);
 			break;
 		default:
@@ -212,7 +216,7 @@ class Runner implements IUuidAndName {
 		return this._lastLocation;
 	}
 
-	private void teleportToSpawn() {
+	void teleportToSpawn() {
 		this._isInGame = true;
 		this._isFrozen = false;
 		this._scoreKeeper.resetCoins();
@@ -221,6 +225,8 @@ class Runner implements IUuidAndName {
 		this._goldBlocks = new HashMap<Point, Location>();
 		PotionEffectMap.removePotionEffects(this._player);
 		this._player.setFireTicks(0);
+		this._player.setWalkSpeed(0.2f);
+		this._player.setFoodLevel(20);
 		safeTeleport(this._arena.getSpawnLocation());
 	}
 
@@ -231,15 +237,21 @@ class Runner implements IUuidAndName {
 		this._player.setFireTicks(0);
 		Location location = this._lastCheckPoint;
 		if (location == null) location = this._arena.getSpawnLocation();
+		else revertGoldCoins();
+		safeTeleport(location);
+	}
+
+	public void revertGoldCoins() {
+		if (this._lastCheckPoint == null) return;
 		Iterator<Entry<Point, Location>> iterator = this._goldBlocks.entrySet().iterator();
 		while (iterator.hasNext()) {
 			final Entry<Point,Location> entry = iterator.next();
+			if ((entry == null) || (entry.getValue() == null)) continue;
 			if (entry.getValue().equals(this._lastCheckPoint)) {
 				this._scoreKeeper.addCoinScore(-1);
 				iterator.remove();
 			}
 		}
-		safeTeleport(location);
 	}
 
 	private void teleportToStart() {
@@ -296,10 +308,7 @@ class Runner implements IUuidAndName {
 		PotionEffectMap.removePotionEffects(this._player);
 		WinnerFirework.doIt(this._lastLocation);
 		if (Config.V.broadcastWins) {
-			//InsanityRun.plugin.getServer().broadcastMessage(ChatColor.GOLD + "[Insanity Run]" + String.format(InsanityRun.broadcastWinsText, colourise("&3"+playerName+"&6"), colourise("&9"+arenaName+"&6"), colourise("&a"+currentPlayerObject.getCoins()+"&6"), InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".gameCurrency"), colourise("&f"+formatIntoHHMMSS(runTime))));
-		}
-		else {
-			//player.sendMessage(ChatColor.GOLD + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".gameOver") + " " + colourise("&a"+currentPlayerObject.getCoins()+"&6") + " " + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".gameCurrency") + " Time: " + colourise("&f"+formatIntoHHMMSS(runTime)));
+			Config.M.broadcastSuccess.broadcastMessage(this._player.getName(), this._arena.getName(), 5.7);
 		}
 
 		/*

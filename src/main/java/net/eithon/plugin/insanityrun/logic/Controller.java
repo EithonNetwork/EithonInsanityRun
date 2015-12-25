@@ -142,8 +142,10 @@ public class Controller {
 			Runner runner = iterator.next().getValue();
 			runner.doRepeatedly();
 			if (runner.hasBeenIdleTooLong()) {
+				Player player = runner.getPlayer();
 				runner.leaveGame();
 				iterator.remove();
+				Config.M.idleKick.sendMessage(player);
 			}
 		}
 		if (this._runners.size()==0) endRepeatingTask();
@@ -183,15 +185,18 @@ public class Controller {
 		return true;
 	}
 
-	public void leaveGame(Player player) {
-		if (!player.hasPermission("insanityrun.join")) {
-			//player.sendMessage(ChatColor.RED + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".noCmdPerms") + " join");
-			return;
-		}
-
+	public boolean leaveGame(Player player) {
 		Runner runner = this._runners.get(player);
-		if (runner == null) return;
+		if (runner == null) return true;
 		leaveGame(runner);
+		return true;
+	}
+
+	public boolean resetGame(Player player) {
+		Runner runner = this._runners.get(player);
+		if (runner == null) return true;
+		runner.teleportToSpawn();
+		return true;
 	}
 
 	private void leaveGame(Runner runner) {
