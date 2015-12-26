@@ -27,6 +27,8 @@ public class Config {
 		public static long restartAfterTicks;
 		public static int maxTotalDepth;
 		public static int maxAirDepth;
+		public static double defaultArenaPrice;
+		public static double defaultArenaReward;
 
 		static void load(Configuration config) {
 			useVault = config.getBoolean("UseVault", false);
@@ -41,6 +43,8 @@ public class Config {
 			restartAfterTicks = config.getTicks("RestartTimeSpan", 10);
 			maxTotalDepth =  config.getInt("MaxTotalDepth", 2);
 			maxAirDepth =  config.getInt("MaxAirDepth", 0);
+			defaultArenaPrice =  config.getDouble("DefaultArenaPrice", 0);
+			defaultArenaReward =  config.getDouble("DefaultArenaReward", 0);
 		}
 
 	}
@@ -65,6 +69,8 @@ public class Config {
 		public static ConfigurableMessage idleKick;
 		public static ConfigurableMessage teleportKick;
 		public static ConfigurableMessage broadcastSuccess;
+		public static ConfigurableMessage withdrawFailed;
+		public static ConfigurableMessage withdrawSucceeded;
 
 		static void load(Configuration config) {
 			playerFinished = config.getConfigurableMessage(
@@ -109,6 +115,12 @@ public class Config {
 			broadcastSuccess = config.getConfigurableMessage(
 					"messages.BroadcastSuccess", 3, 
 					"Player %s completed arena %s in %.1f seconds.");
+			withdrawFailed = config.getConfigurableMessage(
+					"messages.WithdrawFailed", 1, 
+					"Could not withdraw %.2f from your account.");
+			withdrawSucceeded = config.getConfigurableMessage(
+					"messages.WithdrawSucceeded", 1, 
+					"%.2f was withdrawn from your account.");
 		}		
 	}
 

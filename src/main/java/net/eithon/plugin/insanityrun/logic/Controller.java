@@ -9,6 +9,7 @@ import java.util.UUID;
 import net.eithon.library.core.CoreMisc;
 import net.eithon.library.core.PlayerCollection;
 import net.eithon.library.extensions.EithonPlugin;
+import net.eithon.library.facades.VaultFacade;
 import net.eithon.library.json.FileContent;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.time.TimeMisc;
@@ -28,10 +29,12 @@ public class Controller {
 	private HashMap<String, Arena> _arenas = new HashMap<String, Arena>();
 	private EithonPlugin _eithonPlugin;
 	private BukkitTask _idleTask;
+	private VaultFacade _vaultFacade;
 
 	public Controller(EithonPlugin eithonPlugin) {
 		this._eithonPlugin = eithonPlugin;
 		this._runners = new PlayerCollection<Runner>();
+		this._vaultFacade = new VaultFacade(eithonPlugin);
 		ScoreDisplay.initialize();
 		TemporaryEffects.initialize(eithonPlugin);
 		SoundMap.initialize(eithonPlugin);
@@ -40,7 +43,7 @@ public class Controller {
 		this._idleTask = null;
 		load();
 	}
-	
+
 	public void delayedSave() {
 		delayedSave(1);
 	}
@@ -160,28 +163,26 @@ public class Controller {
 	public boolean joinArena(Player player, String arenaName) {
 		Arena arena = getArenaByNameOrInformUser(player, arenaName);
 		if (arena == null) return false;
-		// Does player have enough money to play?
-		/*
-		if (InsanityRun.useVault) {
-			if (InsanityRun.economy.getBalance(player) < InsanityRun.plugin.getConfig().getInt(arenaName + ".charge")) {
-				player.sendMessage(ChatColor.RED + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".notEnoughMoneyText") + InsanityRun.plugin.getConfig().getInt(arenaName + ".charge") + " " + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".payCurrency"));
-				return;
-			}
-			else {
-				// Withdraw money
-				EconomyResponse r = InsanityRun.economy.withdrawPlayer(player, InsanityRun.plugin.getConfig().getInt(arenaName + ".charge"));
-				if(r.transactionSuccess()) {
-					//player.sendMessage(String.format("You were charged %s %s to play and now have %s %s", r.amount, InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".payCurrency"), r.balance, InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".payCurrency")));
-				} else {
-					player.sendMessage(String.format("An error occured: %s", r.errorMessage));
-				}
-			}
-		}
-		 */
+		return joinArena(player, arena);
+	}
+
+	private boolean joinArena(Player player, Arena arena) {
+		if (arena == null) return false;
+		if (!payOrInformPlayer(player,arena)) return false;
 
 		Runner runner = arena.joinGame(player);
 		this._runners.put(player, runner);
 		if (this._idleTask == null) startRepeatingTask();
+		return true;
+	}
+
+	public boolean payOrInformPlayer(Player player, Arena arena) {
+		double amount = arena.getPrice();
+		if (!this._vaultFacade.withdraw(player, amount)) {
+			Config.M.withdrawFailed.sendMessage(player, amount);
+			return false;
+		}
+		Config.M.withdrawSucceeded.sendMessage(player, amount);
 		return true;
 	}
 
@@ -249,7 +250,7 @@ public class Controller {
 		Arena arena = getArenaByNameOrInformUser(sender, name);
 		return arena != null;
 	}
-	
+
 	private Arena getArena(String name) {
 		return this._arenas.get(name.toLowerCase());
 	}
