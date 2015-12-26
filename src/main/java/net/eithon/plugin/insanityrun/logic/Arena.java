@@ -49,10 +49,10 @@ class Arena extends JsonObject<Arena>{
 		this._name = (String) jsonObject.get("name");
 		this._spawnLocation = EithonLocation.getFromJson(jsonObject.get("spawnLocation"));
 		this._linkedToArenaName = (String) jsonObject.get("linkedToArenaName");
-		Long price = (Long) jsonObject.get("price");
-		if (price != null) this._price = price.intValue();
-		Long reward = (Long) jsonObject.get("reward");
-		if (reward != null) this._reward = reward.intValue();
+		Double price = (Double) jsonObject.get("price");
+		if (price != null) this._price = price.doubleValue();
+		Double reward = (Double) jsonObject.get("reward");
+		if (reward != null) this._reward = reward.doubleValue();
 		return this;
 	}
 
