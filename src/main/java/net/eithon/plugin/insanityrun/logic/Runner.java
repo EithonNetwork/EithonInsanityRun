@@ -303,12 +303,13 @@ class Runner implements IUuidAndName {
 
 	// Player ran over Redstone. End the level and start next or end game
 	private void endLevelOrGame(Plugin plugin) {
-		this._scoreKeeper.updateTimeScore();
+		final long runTimeInMilliseconds = this._scoreKeeper.updateTimeScore();
 		this._isInGame = false;
 		PotionEffectMap.removePotionEffects(this._player);
 		WinnerFirework.doIt(this._lastLocation);
 		if (Config.V.broadcastWins) {
-			Config.M.broadcastSuccess.broadcastMessage(this._player.getName(), this._arena.getName(), 5.7);
+			final double result = runTimeInMilliseconds/1000.0;
+			Config.M.broadcastSuccess.broadcastMessage(this._player.getName(), this._arena.getName(), result);
 		}
 
 		/*

@@ -41,7 +41,6 @@ public class ScoreKeeper {
 		this._scoreDisplay.setCoinScore(this._coins);		
 	}
 
-	public long getRunTimeInSecondsAndUpdateScore() { return (long) Math.floor(getRunTimeInMillisecondsAndUpdateScore()/1000.0); }
 	public long getRunTimeInMillisecondsAndUpdateScore() { 
 		final long runTime = System.currentTimeMillis()-this._startTime;
 		updateTimeScore(runTime);
