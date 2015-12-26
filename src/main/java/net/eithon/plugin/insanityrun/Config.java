@@ -75,6 +75,7 @@ public class Config {
 		public static ConfigurableMessage rewardArena;
 		public static ConfigurableMessage rewardFailed;
 		public static ConfigurableMessage rewarded;
+		public static ConfigurableMessage effectSlowActivated;
 
 		static void load(Configuration config) {
 			playerFinished = config.getConfigurableMessage(
@@ -137,6 +138,9 @@ public class Config {
 			rewarded = config.getConfigurableMessage(
 					"messages.Rewarded", 1, 
 					"You were rewarded %.2f for completing the arena.");
+			effectSlowActivated = config.getConfigurableMessage(
+					"messages.EffectSlowActivated", 0, 
+					"SLOWNESS effect applied!");
 		}		
 	}
 

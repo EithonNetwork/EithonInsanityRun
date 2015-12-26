@@ -159,4 +159,8 @@ messages:
   #
   # Parameters: <name> (%s), <amount> (%f)
   Rewarded: 'You were rewarded %.2f for completing the arena.'
+
+  #
+  # Parameters: -
+  EffectSlowActivated: 'SLOWNESS effect applied!'
   

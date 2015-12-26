@@ -148,6 +148,9 @@ class Runner implements IUuidAndName {
 		PotionEffectMap.addPotionEffects(runnerEffect, this._player);
 		// Player effects when walking on blocks
 		switch(runnerEffect) {
+		case SLOW:
+			Config.M.effectSlowActivated.sendMessage(this._player);
+			break;
 		case JUMP:
 			jump();
 			break;
