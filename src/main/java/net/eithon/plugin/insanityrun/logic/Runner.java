@@ -158,7 +158,7 @@ class Runner implements IUuidAndName {
 			bounceBack();
 			break;
 		case CHECKPOINT:
-			if (!this._lastLocation.getBlock().equals(this._lastCheckPoint.getBlock())) {
+			if (!atLastCheckPoint()) {
 				this._lastCheckPoint = this._lastLocation;
 				Config.M.reachedCheckPoint.sendMessage(this._player);
 			}
@@ -175,6 +175,15 @@ class Runner implements IUuidAndName {
 			break;
 		}
 		return runnerLeftGame;
+	}
+
+	private boolean atLastCheckPoint() {
+		return atLastCheckPoint(this._lastLocation);
+	}
+
+	private boolean atLastCheckPoint(Location location) {
+		if ((location == null) || (this._lastCheckPoint == null)) return false;
+		return location.getBlock().equals(this._lastCheckPoint.getBlock());
 	}
 
 	private void jump() {
@@ -246,8 +255,8 @@ class Runner implements IUuidAndName {
 		Iterator<Entry<Point, Location>> iterator = this._goldBlocks.entrySet().iterator();
 		while (iterator.hasNext()) {
 			final Entry<Point,Location> entry = iterator.next();
-			if ((entry == null) || (entry.getValue() == null)) continue;
-			if (entry.getValue().equals(this._lastCheckPoint)) {
+			if (entry == null) continue;
+			if (atLastCheckPoint(entry.getValue())) {
 				this._scoreKeeper.addCoinScore(-1);
 				iterator.remove();
 			}
