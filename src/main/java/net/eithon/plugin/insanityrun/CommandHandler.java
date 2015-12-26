@@ -171,10 +171,9 @@ public class CommandHandler implements ICommandHandler {
 	void resetCommand(CommandParser commandParser)
 	{
 		if (!commandParser.hasPermissionOrInformSender("eir.reset")) return;
-		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(2, 2)) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 1)) return;
 
 		Player player = commandParser.getPlayer();
-		String name =commandParser.getArgumentStringAsLowercase();
 
 		if (!this._controller.resetGame(player)) return;
 	}
@@ -203,12 +202,16 @@ public class CommandHandler implements ICommandHandler {
 			sender.sendMessage(LIST_COMMAND);
 		} else if (command.equals("goto")) {
 			sender.sendMessage(GOTO_COMMAND);
-		} else if (command.equals("join")) {
+		} else if (command.equals("join_named_arena")) {
 			sender.sendMessage(JOIN_COMMAND);
 		} else if (command.equals("leave")) {
 			sender.sendMessage(LEAVE_COMMAND);
 		} else if (command.equals("reset")) {
 			sender.sendMessage(RESET_COMMAND);
+		} else if (command.equals("price")) {
+			sender.sendMessage(PRICE_COMMAND);
+		} else if (command.equals("reward")) {
+			sender.sendMessage(REWARD_COMMAND);
 		} else {
 			sender.sendMessage(String.format("Unknown command: %s.", command));
 		}	

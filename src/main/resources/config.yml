@@ -153,6 +153,10 @@ messages:
   PriceArena: 'The price for arena %s is now %.2f.'
 
   #
+  # Parameters: <amount> (%f)
+  RewardFailed: 'Failed to reward you %.2f for completing the arena.'
+
+  #
   # Parameters: <name> (%s), <amount> (%f)
-  RewardArena: 'The reward for arena %s is now %.2f.'
+  Rewarded: 'You were rewarded %.2f for completing the arena.'
   

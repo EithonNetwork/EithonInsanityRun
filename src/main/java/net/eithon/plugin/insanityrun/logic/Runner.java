@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import net.eithon.library.core.CoreMisc;
 import net.eithon.library.core.IUuidAndName;
+import net.eithon.library.extensions.EithonPlugin;
+import net.eithon.library.facades.VaultFacade;
 import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.time.TimeMisc;
@@ -130,7 +132,7 @@ class Runner implements IUuidAndName {
 		}
 	}
 
-	public boolean movedOneBlock(final Plugin plugin) {
+	public boolean movedOneBlock(final EithonPlugin plugin) {
 		if (!this._isInGame) return false;
 		this._scoreKeeper.updateTimeScore();
 		boolean runnerLeftGame = false;
@@ -312,7 +314,7 @@ class Runner implements IUuidAndName {
 	}
 
 	// Player ran over Redstone. End the level and start next or end game
-	private void endLevelOrGame(Plugin plugin) {
+	private void endLevelOrGame(EithonPlugin plugin) {
 		final long runTimeInMilliseconds = this._scoreKeeper.updateTimeScore();
 		this._isInGame = false;
 		PotionEffectMap.removePotionEffects(this._player);
@@ -321,62 +323,21 @@ class Runner implements IUuidAndName {
 			final double result = runTimeInMilliseconds/1000.0;
 			Config.M.broadcastSuccess.broadcastMessage(this._player.getName(), this._arena.getName(), result);
 		}
-
-		/*
-		if (InsanityRun.useVault && InsanityRun.plugin.getConfig().getInt(arenaName + ".pay") > 0) {
-			EconomyResponse res = InsanityRun.economy.depositPlayer(player.getName(), InsanityRun.plugin.getConfig().getInt(arenaName + ".pay"));
-			if(res.transactionSuccess()) {
-				player.sendMessage(ChatColor.GOLD + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".vaultAward") + " " + InsanityRun.plugin.getConfig().getInt(arenaName + ".pay") + " " + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".payCurrency"));
-			} else {
-				player.sendMessage(String.format("An error occured: %s", res.errorMessage));
-			}
+		double reward = this._arena.getReward();
+		if (reward >= 0.01) {
+			VaultFacade vaultFacade = new VaultFacade(plugin);
+			if (!vaultFacade.deposit(this._player, reward)) {
+				Config.M.rewardFailed.sendMessage(this._player, reward);
+			} else Config.M.rewarded.sendMessage(this._player, reward);
 		}
-		 */
 		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			public void run() {
-				// Check for linked arena
-				/*
-				if (InsanityRun.plugin.getConfig().getString(arenaName + ".link")!=null) {
-					if ((!InsanityRun.useVault) || (InsanityRun.useVault && canAfford(currentPlayerObject,InsanityRun.plugin.getConfig().getString(arenaName + ".link")))) {
-						// Remove player from this arena
-						int playCount;
-						playCount = InsanityRun.playersInThisArena.get(arenaName);
-						playCount--;
-						InsanityRun.playersInThisArena.put(arenaName, playCount);
-						GameManager.updateJoinSign(arenaName);
-						currentPlayerObject.setCoins(0);
-						// Reset Scoreboard
-						Score time = InsanityRun.objective.getScore(ChatColor.LIGHT_PURPLE + "Time:");
-						Score score = InsanityRun.objective.getScore(ChatColor.YELLOW + "Coins:");
-						time.setScore(0);
-						score.setScore(0);
-						GameManager.teleportToSpawn(player, InsanityRun.plugin.getConfig().getString(arenaName + ".link"));
-						GameManager.updatePlayerXYZ(player);
-						currentPlayerObject.setLastCheckpoint(player.getLocation());
-						currentPlayerObject.setInArena(InsanityRun.plugin.getConfig().getString(arenaName + ".link"));
-						currentPlayerObject.setFrozen(false);
-						currentPlayerObject.setLastMovedTime(System.currentTimeMillis());
-						currentPlayerObject.setStartRaceTime(System.currentTimeMillis());
-						currentPlayerObject.setInGame(true);
-						if (InsanityRun.playersInThisArena.get(InsanityRun.plugin.getConfig().getString(arenaName + ".link")) == null) {
-							InsanityRun.playersInThisArena.put(InsanityRun.plugin.getConfig().getString(arenaName + ".link"), 0);
-						}
-						playCount = InsanityRun.playersInThisArena.get(InsanityRun.plugin.getConfig().getString(arenaName + ".link"));
-						playCount++;
-						InsanityRun.playersInThisArena.put(InsanityRun.plugin.getConfig().getString(arenaName + ".link"), playCount);
-						GameManager.updateJoinSign(InsanityRun.plugin.getConfig().getString(arenaName + ".link"));
-						return;
-					}
-
-				}
-				 */
-				// Check if player gets sent back to JOIN sign
 				if (Config.V.telePortAfterEnd) {
 					teleportToStart();
 				}
 				leaveGame();
 			}
-		}, 20 * 5); // 20 ticks per second x 5 seconds
+		}, TimeMisc.secondsToTicks(5));
 	}
 
 	/*

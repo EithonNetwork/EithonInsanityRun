@@ -73,6 +73,8 @@ public class Config {
 		public static ConfigurableMessage withdrawSucceeded;
 		public static ConfigurableMessage priceArena;
 		public static ConfigurableMessage rewardArena;
+		public static ConfigurableMessage rewardFailed;
+		public static ConfigurableMessage rewarded;
 
 		static void load(Configuration config) {
 			playerFinished = config.getConfigurableMessage(
@@ -129,6 +131,12 @@ public class Config {
 			rewardArena = config.getConfigurableMessage(
 					"messages.RewardArena", 2, 
 					"The reward for arena %s is now %.2f.");
+			rewardFailed = config.getConfigurableMessage(
+					"messages.RewardFailed", 1, 
+					"Failed to reward you %.2f for completing the arena.");
+			rewarded = config.getConfigurableMessage(
+					"messages.Rewarded", 1, 
+					"You were rewarded %.2f for completing the arena.");
 		}		
 	}
 

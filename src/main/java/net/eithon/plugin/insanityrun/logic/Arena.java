@@ -2,12 +2,12 @@ package net.eithon.plugin.insanityrun.logic;
 
 import net.eithon.library.core.PlayerCollection;
 import net.eithon.library.extensions.EithonLocation;
+import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.json.JsonObject;
 import net.eithon.plugin.insanityrun.Config;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.json.simple.JSONObject;
 
 class Arena extends JsonObject<Arena>{
@@ -119,7 +119,7 @@ class Arena extends JsonObject<Arena>{
 		}
 	}
 
-	public void playerMovedOneBlock(Player player, Plugin plugin) {
+	public void playerMovedOneBlock(Player player, EithonPlugin plugin) {
 		final Runner runner = this._runners.get(player);
 		if ((runner == null) || !runner.isInGame()) return;
 

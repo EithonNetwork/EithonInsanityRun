@@ -167,6 +167,7 @@ public class Controller {
 
 	public boolean payOrInformPlayer(Player player, Arena arena) {
 		double amount = arena.getPrice();
+		if (amount < 0.01) return true;
 		if (!this._vaultFacade.withdraw(player, amount)) {
 			Config.M.withdrawFailed.sendMessage(player, amount);
 			return false;
@@ -177,6 +178,7 @@ public class Controller {
 
 	public boolean leaveGame(Player player) {
 		Arena arena = this._playerArenas.get(player);
+		if (arena == null) return true;
 		return arena.leaveGame(player);
 	}
 
