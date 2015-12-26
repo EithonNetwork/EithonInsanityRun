@@ -1,6 +1,6 @@
 eithon:
-  UseMarkUpForMessages: 0
-  UseWrappingForMessages: 0
+  UseMarkUpForMessages: 1
+  UseWrappingForMessages: 1
   
   #
   # Debug level
@@ -47,11 +47,6 @@ UseCheckpoints: true
 TelePortAfterEnd: true
 
 #
-# Max jump height over a block and still count as touching the block
-#
-MaxHeightOverBlock: 1
-
-#
 # The time span that the runner will keep a pumpkin helmet after receiving it
 #
 PumpkinHelmetTimeSpan: 2s
@@ -65,6 +60,16 @@ FreezeTimeSpan: 2s
 # Time to wait before restart after fail. This time is needed to give the player time to realize his/her mistake
 #
 RestartTimeSpan: 10t
+
+#
+# Max total height over a block and still count as touching the block
+#
+MaxTotalDepth: 2
+
+#
+# Max number of air blocks that we will pass through to find a relevant block
+#
+MaxAirDepth: 0
 
 
 commands:
@@ -99,12 +104,12 @@ messages:
   UnknownArena: Unknown arena (%s).
 
   #
-  # Parameters: <arena name> (%s)
+  # Parameters: <arena name> (a%s)
   Arena info: '%s'
 
   #
   # Parameters: <arena name> (%s)
-  JoinArena: You have joined Arena %s.
+  JoinArena: '[actionbar/]You have joined Arena %s.'
 
   #
   # Parameters: <arena name> (%s)
@@ -112,11 +117,11 @@ messages:
 
   #
   # Parameters: -
-  ReachedCheckPoint: You have reached a check point.
+  ReachedCheckPoint: '[actionbar/]You have reached a check point.'
 
   #
   # Parameters: -
-  FailRestart: You failed, try again.
+  FailRestart: You failed, try again!
 
   #
   # Parameters: -

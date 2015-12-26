@@ -106,7 +106,7 @@ public class Controller {
 					continue;
 				}
 				this._eithonPlugin.getEithonLogger().info("Loaded arena %s", arena.getName());
-				this._arenas.put(arena.getName(), arena);
+				this._arenas.put(arena.getName().toLowerCase(), arena);
 			} catch (Exception e) {
 				this._eithonPlugin.getEithonLogger().error("Could not load arena %d (exception).", i);
 				if (arena != null) this._eithonPlugin.getEithonLogger().error("Could not load arena %s", arena.getName());
@@ -256,7 +256,7 @@ public class Controller {
 
 	public boolean createOrUpdateArena(Player player, String name) {
 		Arena arena = new Arena(name, player.getLocation());
-		this._arenas.put(name.toLowerCase(), arena);
+		this._arenas.put(arena.getName().toLowerCase(), arena);
 		return true;
 	}
 

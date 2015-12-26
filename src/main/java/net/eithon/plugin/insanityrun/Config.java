@@ -22,10 +22,11 @@ public class Config {
 		public static boolean waterRestartsRun;
 		public static boolean useCheckpoints;
 		public static boolean telePortAfterEnd;
-		public static int maxHeightOverBlock;
 		public static long pumpkinHelmetSeconds;
 		public static long freezeSeconds;
 		public static long restartAfterTicks;
+		public static int maxTotalDepth;
+		public static int maxAirDepth;
 
 		static void load(Configuration config) {
 			useVault = config.getBoolean("UseVault", false);
@@ -35,10 +36,11 @@ public class Config {
 			waterRestartsRun = config.getBoolean("WaterRestartsRun", true);
 			useCheckpoints = config.getBoolean("UseCheckpoints", true);
 			telePortAfterEnd = config.getBoolean("TelePortAfterEnd", true);
-			maxHeightOverBlock =  config.getInt("MaxHeightOverBlock", 2);
 			pumpkinHelmetSeconds = config.getSeconds("PumpkinHelmetTimeSpan", 2);
 			freezeSeconds = config.getSeconds("FreezeTimeSpan", 2);
 			restartAfterTicks = config.getTicks("RestartTimeSpan", 10);
+			maxTotalDepth =  config.getInt("MaxTotalDepth", 2);
+			maxAirDepth =  config.getInt("MaxAirDepth", 0);
 		}
 
 	}

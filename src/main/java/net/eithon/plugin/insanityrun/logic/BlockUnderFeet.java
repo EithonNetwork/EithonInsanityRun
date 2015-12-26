@@ -24,25 +24,28 @@ class BlockUnderFeet {
 
 	BlockUnderFeet(final Location feetLocation) {
 		this._block = findFirstBlockUnderFeet(feetLocation);
-		this._runnerEffect = translateMaterialToRunnerEffect();
+		this._runnerEffect = translateMaterialToRunnerEffect(this._block);
 		verbose("constructor", "RunnerEffect: %s", this._runnerEffect.toString());
 	}
 
 	private Block findFirstBlockUnderFeet(final Location feetLocation) {
 		Block feetBlock = feetLocation.getBlock();
-		for (int delta = 0; delta <= Config.V.maxHeightOverBlock; delta++) {
+		for (int delta = 0; delta <= Config.V.maxTotalDepth; delta++) {
 			Block block = feetBlock.getWorld().getBlockAt(feetBlock.getX(),  feetBlock.getY()-delta, feetBlock.getZ());
 			Material blockMaterial = block.getType();
+			verbose("findFirstBlockUnderFeet", "Depth: %d, material: %s", delta, blockMaterial.toString());
 			switch(blockMaterial) {
 			case AIR:
-				continue;
+				if (delta >= Config.V.maxAirDepth) return block;
+				break;
 			case WATER:
 			case STATIONARY_WATER:
 			case LAVA:
 			case STATIONARY_LAVA:
 				return (delta == 0) ? block : null;
 			default:
-				return block;
+				if (translateMaterialToRunnerEffect(block) != RunnerEffect.NONE) return block;
+				break;
 			}
 		}
 		return null;
@@ -52,9 +55,9 @@ class BlockUnderFeet {
 
 	RunnerEffect getRunnerEffect() { return this._runnerEffect; }
 	
-	private RunnerEffect translateMaterialToRunnerEffect() {
-		if (this._block == null) return RunnerEffect.NONE;
-		final Material blockMaterial = this._block.getType();
+	private RunnerEffect translateMaterialToRunnerEffect(Block block) {
+		if (block == null) return RunnerEffect.NONE;
+		final Material blockMaterial = block.getType();
 		switch(blockMaterial) {
 		case GOLD_BLOCK: return RunnerEffect.COIN;
 		case DIAMOND_BLOCK: return RunnerEffect.JUMP;
