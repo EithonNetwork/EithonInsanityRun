@@ -140,4 +140,7 @@ class Arena extends JsonObject<Arena>{
 	public void playerLeftArena(Player player) {
 		this._runners.remove(player);
 	}
+
+	public void setPrice(double amount) { this._price = amount; }
+	public void setReward(double amount) { this._reward = amount; }
 }

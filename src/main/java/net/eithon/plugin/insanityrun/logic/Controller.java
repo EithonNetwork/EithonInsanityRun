@@ -279,4 +279,18 @@ public class Controller {
 		this._playerArenas.remove(player);
 		if (this._playerArenas.size()==0) endRepeatingTask();
 	}
+
+	public boolean priceArena(Player player, String name, double amount) {
+		final Arena arena = getArenaByNameOrInformUser(player, name);
+		if (arena == null) return false;
+		arena.setPrice(amount);
+		return true;
+	}
+
+	public boolean rewardArena(Player player, String name, double amount) {
+		final Arena arena = getArenaByNameOrInformUser(player, name);
+		if (arena == null) return false;
+		arena.setReward(amount);
+		return true;
+	}
 }

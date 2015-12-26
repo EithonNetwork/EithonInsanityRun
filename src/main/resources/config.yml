@@ -147,4 +147,12 @@ messages:
   #
   # Parameters: <amount> (%f)
   WithdrawSucceeded: '%.2f was withdrawn from your account.'
+
+  #
+  # Parameters: <name> (%s), <amount> (%f)
+  PriceArena: 'The price for arena %s is now %.2f.'
+
+  #
+  # Parameters: <name> (%s), <amount> (%f)
+  RewardArena: 'The reward for arena %s is now %.2f.'
   

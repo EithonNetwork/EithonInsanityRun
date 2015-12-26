@@ -71,6 +71,8 @@ public class Config {
 		public static ConfigurableMessage broadcastSuccess;
 		public static ConfigurableMessage withdrawFailed;
 		public static ConfigurableMessage withdrawSucceeded;
+		public static ConfigurableMessage priceArena;
+		public static ConfigurableMessage rewardArena;
 
 		static void load(Configuration config) {
 			playerFinished = config.getConfigurableMessage(
@@ -121,6 +123,12 @@ public class Config {
 			withdrawSucceeded = config.getConfigurableMessage(
 					"messages.WithdrawSucceeded", 1, 
 					"%.2f was withdrawn from your account.");
+			priceArena = config.getConfigurableMessage(
+					"messages.PriceArena", 2, 
+					"The price for arena %s is now %.2f.");
+			rewardArena = config.getConfigurableMessage(
+					"messages.RewardArena", 2, 
+					"The reward for arena %s is now %.2f.");
 		}		
 	}
 
