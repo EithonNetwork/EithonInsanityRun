@@ -8,6 +8,11 @@ Based on InsanityRun
 
 ## Releases
 
+### 1.1 ()
+
+* NEW: Added price and rewards
+* CHANGE: Refactored when a player is removed from the list of active players.
+
 ### 1.0.1 (2015-12-26)
 
 * BUG: Problems with capitalization of Arena names.
