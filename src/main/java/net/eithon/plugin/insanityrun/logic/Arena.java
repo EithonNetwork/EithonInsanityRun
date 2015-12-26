@@ -7,6 +7,7 @@ import net.eithon.plugin.insanityrun.Config;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.json.simple.JSONObject;
 
 class Arena extends JsonObject<Arena>{
@@ -17,13 +18,13 @@ class Arena extends JsonObject<Arena>{
 	private double _price;
 	private double _reward;
 	private Arena _linkedToArena;
-	
+
 	private Arena() {
 		this._runners = new PlayerCollection<Runner>();
 		this._price = Config.V.defaultArenaPrice;
 		this._reward = Config.V.defaultArenaReward;
 	}
-	
+
 	public Arena(String name, Location spawnLocation) {
 		this();
 		this._name = name;
@@ -70,8 +71,11 @@ class Arena extends JsonObject<Arena>{
 		return runner;
 	}
 
-	public void runnerLeft(Runner runner) {
-		this._runners.remove(runner.getPlayer());
+	public boolean leaveGame(Player player) {
+		Runner runner = this._runners.get(player);
+		if (runner == null) return true;
+		runner.leaveGame();
+		return true;
 	}
 
 	public Runner getRunner(Player player) {
@@ -90,4 +94,50 @@ class Arena extends JsonObject<Arena>{
 	public double getReward() { return this._reward; }
 
 	public String getLinkedToArenaName() { return this._linkedToArenaName; }
+
+	public void doEverySecond() {
+		for (Runner runner : this._runners) {
+			runner.doRepeatedly();
+			if (!runner.hasBeenIdleTooLong()) continue;
+			Player player = runner.getPlayer();
+			runner.leaveGame();
+			Config.M.idleKick.sendMessage(player);
+		}
+	}
+
+	public boolean resetGame(Player player) {
+		Runner runner = this._runners.get(player);
+		if (runner == null) return true;
+		runner.teleportToSpawn();
+		return true;
+	}
+
+	// When we need to kick all runners, do that with refund
+	public void kickAllRunners() {
+		for (Runner runner : this._runners) {
+			runner.leaveGameWithRefund();
+		}
+	}
+
+	public void playerMovedOneBlock(Player player, Plugin plugin) {
+		final Runner runner = this._runners.get(player);
+		if ((runner == null) || !runner.isInGame()) return;
+
+		runner.movedOneBlock(plugin);
+	}
+
+	public void maybeLeaveGameBecauseOfTeleport(Player player) {
+		final Runner runner = this._runners.get(player);
+		if ((runner == null) || !runner.isInGame()) return;
+		runner.maybeLeaveGameBecauseOfTeleport();
+	}
+
+	public boolean isInGame(Player player) {
+		final Runner runner = this._runners.get(player);		
+		return ((runner != null) && runner.isInGame());
+	}
+
+	public void playerLeftArena(Player player) {
+		this._runners.remove(player);
+	}
 }

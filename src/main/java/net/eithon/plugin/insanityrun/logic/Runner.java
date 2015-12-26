@@ -110,7 +110,8 @@ class Runner implements IUuidAndName {
 		player.setGameMode(this._rememberGameMode);
 		if (refund) refundMoney();
 		if (teleportToStart) teleportToStart();
-		this._arena.runnerLeft(this);
+		PlayerLeftArenaEvent e = new PlayerLeftArenaEvent(this.getPlayer(), this._arena);
+		this._player.getServer().getPluginManager().callEvent(e);
 		verbose("leaveGame", "Leave");
 	}
 

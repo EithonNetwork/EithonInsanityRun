@@ -2,9 +2,6 @@ package net.eithon.plugin.insanityrun.logic;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.UUID;
 
 import net.eithon.library.core.CoreMisc;
 import net.eithon.library.core.PlayerCollection;
@@ -25,7 +22,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 public class Controller {
-	private PlayerCollection<Runner> _runners = new PlayerCollection<Runner>();
+	private PlayerCollection<Arena> _playerArenas = new PlayerCollection<Arena>();
 	private HashMap<String, Arena> _arenas = new HashMap<String, Arena>();
 	private EithonPlugin _eithonPlugin;
 	private BukkitTask _idleTask;
@@ -33,7 +30,7 @@ public class Controller {
 
 	public Controller(EithonPlugin eithonPlugin) {
 		this._eithonPlugin = eithonPlugin;
-		this._runners = new PlayerCollection<Runner>();
+		this._playerArenas = new PlayerCollection<Arena>();
 		this._vaultFacade = new VaultFacade(eithonPlugin);
 		ScoreDisplay.initialize();
 		TemporaryEffects.initialize(eithonPlugin);
@@ -140,18 +137,10 @@ public class Controller {
 	}
 
 	void doEverySecond() {
-		Iterator<Entry<UUID, Runner>> iterator = this._runners.entrySet().iterator();
-		while(iterator.hasNext()) {
-			Runner runner = iterator.next().getValue();
-			runner.doRepeatedly();
-			if (runner.hasBeenIdleTooLong()) {
-				Player player = runner.getPlayer();
-				runner.leaveGame();
-				iterator.remove();
-				Config.M.idleKick.sendMessage(player);
-			}
+		for (Arena arena : this._arenas.values()) {
+			arena.doEverySecond();
 		}
-		if (this._runners.size()==0) endRepeatingTask();
+		if (this._playerArenas.size()==0) endRepeatingTask();
 	}
 
 	public void endRepeatingTask() {
@@ -170,8 +159,8 @@ public class Controller {
 		if (arena == null) return false;
 		if (!payOrInformPlayer(player,arena)) return false;
 
-		Runner runner = arena.joinGame(player);
-		this._runners.put(player, runner);
+		arena.joinGame(player);
+		this._playerArenas.put(player, arena);
 		if (this._idleTask == null) startRepeatingTask();
 		return true;
 	}
@@ -187,58 +176,39 @@ public class Controller {
 	}
 
 	public boolean leaveGame(Player player) {
-		Runner runner = this._runners.get(player);
-		if (runner == null) return true;
-		leaveGame(runner);
-		return true;
+		Arena arena = this._playerArenas.get(player);
+		return arena.leaveGame(player);
 	}
 
 	public boolean resetGame(Player player) {
-		Runner runner = this._runners.get(player);
-		if (runner == null) return true;
-		runner.teleportToSpawn();
-		return true;
-	}
-
-	private void leaveGame(Runner runner) {
-		runner.leaveGame();
-		this._runners.remove(runner.getPlayer());
-		if (this._runners.size()==0) endRepeatingTask();
+		Arena arena = this._playerArenas.get(player);
+		if (arena == null) return true;
+		return arena.resetGame(player);
 	}
 
 	// When we need to kick all runners, do that with refund
 	public void kickAllRunners() {
-		Iterator<Entry<UUID, Runner>> iterator = this._runners.entrySet().iterator();
-		while (iterator.hasNext()) {
-			Runner runner = iterator.next().getValue();
-			runner.leaveGameWithRefund();
-			iterator.remove();
+		for (Arena arena : this._playerArenas) {
+			arena.kickAllRunners();
 		}
 	}
 
 	public void playerMovedOneBlock(Player player) {
-		final Runner runner = this._runners.get(player);
-		if ((runner == null) || !runner.isInGame()) return;
-
-		// Player frozen?
-		if (runner.isFrozen()) {
-			runner.teleportToLastLocation();
-			return;
-		}
-
-		boolean runnerLeftGame = runner.movedOneBlock(this._eithonPlugin);
-		if (runnerLeftGame) this._runners.remove(player);
+		final Arena arena = this._playerArenas.get(player);
+		if (arena == null) return;
+		arena.playerMovedOneBlock(player, this._eithonPlugin);
 	}
 
 	public void maybeLeaveGameBecauseOfTeleport(Player player) {
-		final Runner runner = this._runners.get(player);
-		if (runner == null) return;
-		runner.maybeLeaveGameBecauseOfTeleport();
+		final Arena arena = this._playerArenas.get(player);
+		if (arena == null) return;
+		arena.maybeLeaveGameBecauseOfTeleport(player);
 	}
 
 	public boolean isInGame(Player player) {
-		Runner runner = this._runners.get(player);
-		return ((runner != null) && runner.isInGame());
+		Arena arena = this._playerArenas.get(player);
+		if (arena == null) return false;
+		return arena.isInGame(player);
 	}
 
 	public boolean verifyArenaNameIsNew(CommandSender sender, String name) {
@@ -285,7 +255,7 @@ public class Controller {
 	}
 
 	public boolean gotoArena(Player player, String name) {
-		Arena arena = getArenaByNameOrInformUser(player, name);
+		final Arena arena = getArenaByNameOrInformUser(player, name);
 		if (arena == null) return false;
 		player.teleport(arena.getSpawnLocation());
 		return true;
@@ -300,5 +270,13 @@ public class Controller {
 	private void verbose(String method, String format, Object... args) {
 		String message = CoreMisc.safeFormat(format, args);
 		this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.VERBOSE, "Controller.%s: %s", method, message);
+	}
+
+	public void playerLeftArena(Player player) {
+		final Arena arena = this._playerArenas.get(player);
+		if (arena == null) return;
+		arena.playerLeftArena(player);
+		this._playerArenas.remove(player);
+		if (this._playerArenas.size()==0) endRepeatingTask();
 	}
 }

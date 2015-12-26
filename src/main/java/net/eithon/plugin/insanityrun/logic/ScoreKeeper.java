@@ -1,9 +1,5 @@
 package net.eithon.plugin.insanityrun.logic;
 
-import net.eithon.library.core.CoreMisc;
-import net.eithon.library.plugin.Logger;
-import net.eithon.library.plugin.Logger.DebugPrintLevel;
-
 import org.bukkit.entity.Player;
 
 public class ScoreKeeper {
@@ -45,10 +41,6 @@ public class ScoreKeeper {
 		final long runTime = System.currentTimeMillis()-this._startTime;
 		updateTimeScore(runTime);
 		return runTime; 
-	}
-	private void verbose(String method, String format, Object... args) {
-		String message = CoreMisc.safeFormat(format, args);
-		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "EithonInsanityRun: ScoreKeeper.%s: %s", method, message);
 	}
 
 	public void disable() {
