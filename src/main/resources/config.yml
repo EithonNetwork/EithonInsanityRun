@@ -12,14 +12,19 @@ eithon:
   DebugLevel: 1
 
 #
-# Should we use Vault for economy? If false, runs will be free of charge.
-#
-UseVault: false
-
-#
 # After how long time should the player be kicked
 #
 IdleKickTimeSpan: 4s
+
+#
+# What is the default arena price to enter a run? (Can be changed individually for each arena).
+#
+DefaultArenaPrice: 0
+
+#
+# What is the default arena reward for completing a run? (Can be changed individually for each arena).
+#
+DefaultArenaReward: 0
 
 #
 # Should we broadcast wins
@@ -113,7 +118,7 @@ messages:
 
   #
   # Parameters: <arena name> (%s)
-  LeftArena: You have left Arena %.
+  LeftArena: You have left Arena %s.
 
   #
   # Parameters: -
@@ -134,4 +139,24 @@ messages:
   #
   # Parameters: <player name> (%s), <arena name> (%s), <time in seconds> (%f)
   BroadcastSuccess: Player %s completed arena %s in %.1f seconds.
+
+  #
+  # Parameters: <amount> (%f)
+  WithdrawFailed: Could not withdraw %.2f from your account.
+
+  #
+  # Parameters: <amount> (%f)
+  WithdrawSucceeded: '%.2f was withdrawn from your account.'
+
+  #
+  # Parameters: <name> (%s), <amount> (%f)
+  PriceArena: 'The price for arena %s is now %.2f.'
+
+  #
+  # Parameters: <amount> (%f)
+  RewardFailed: 'Failed to reward you %.2f for completing the arena.'
+
+  #
+  # Parameters: <name> (%s), <amount> (%f)
+  Rewarded: 'You were rewarded %.2f for completing the arena.'
   

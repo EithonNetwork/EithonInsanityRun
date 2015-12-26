@@ -11,6 +11,8 @@ import org.bukkit.entity.Player;
 public class CommandHandler implements ICommandHandler {
 	private static final String ADD_COMMAND = "/eir add <name> [<up speed> <forward speed>]";
 	private static final String GOTO_COMMAND = "/eir goto <name>";
+	private static final String PRICE_COMMAND = "/eir price <name> <amount>";
+	private static final String REWARD_COMMAND = "/eir reward <name> <amount>";
 	private static final String JOIN_COMMAND = "/eir join_named_arena <name>";
 	private static final String LEAVE_COMMAND = "/eir leave";
 	private static final String RESET_COMMAND = "/eir reset";
@@ -48,6 +50,10 @@ public class CommandHandler implements ICommandHandler {
 			listCommand(commandParser);
 		} else if (command.equals("goto")) {
 			gotoCommand(commandParser);
+		} else if (command.equals("price")) {
+			priceCommand(commandParser);
+		} else if (command.equals("reward")) {
+			rewardCommand(commandParser);
 		} else if (command.equals("join_named_arena")) {
 			joinCommand(commandParser);
 		} else if (command.equals("leave")) {
@@ -112,6 +118,32 @@ public class CommandHandler implements ICommandHandler {
 		Config.M.gotoArena.sendMessage(player, name);
 	}
 
+	void priceCommand(CommandParser commandParser)
+	{
+		if (!commandParser.hasPermissionOrInformSender("eir.price")) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(2, 3)) return;
+
+		Player player = commandParser.getPlayer();
+		String name =commandParser.getArgumentStringAsLowercase();
+		double amount = commandParser.getArgumentDouble(0.0);
+
+		if (!this._controller.priceArena(player, name, amount)) return;
+		Config.M.priceArena.sendMessage(player, name, amount);
+	}
+
+	void rewardCommand(CommandParser commandParser)
+	{
+		if (!commandParser.hasPermissionOrInformSender("eir.reward")) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(2, 3)) return;
+
+		Player player = commandParser.getPlayer();
+		String name =commandParser.getArgumentStringAsLowercase();
+		double amount = commandParser.getArgumentDouble(0.0);
+
+		if (!this._controller.rewardArena(player, name, amount)) return;
+		Config.M.rewardArena.sendMessage(player, name, amount);
+	}
+
 	void joinCommand(CommandParser commandParser)
 	{
 		if (!commandParser.hasPermissionOrInformSender("eir.join")) return;
@@ -139,10 +171,9 @@ public class CommandHandler implements ICommandHandler {
 	void resetCommand(CommandParser commandParser)
 	{
 		if (!commandParser.hasPermissionOrInformSender("eir.reset")) return;
-		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(2, 2)) return;
+		if (!commandParser.hasCorrectNumberOfArgumentsOrShowSyntax(1, 1)) return;
 
 		Player player = commandParser.getPlayer();
-		String name =commandParser.getArgumentStringAsLowercase();
 
 		if (!this._controller.resetGame(player)) return;
 	}
@@ -171,12 +202,16 @@ public class CommandHandler implements ICommandHandler {
 			sender.sendMessage(LIST_COMMAND);
 		} else if (command.equals("goto")) {
 			sender.sendMessage(GOTO_COMMAND);
-		} else if (command.equals("join")) {
+		} else if (command.equals("join_named_arena")) {
 			sender.sendMessage(JOIN_COMMAND);
 		} else if (command.equals("leave")) {
 			sender.sendMessage(LEAVE_COMMAND);
 		} else if (command.equals("reset")) {
 			sender.sendMessage(RESET_COMMAND);
+		} else if (command.equals("price")) {
+			sender.sendMessage(PRICE_COMMAND);
+		} else if (command.equals("reward")) {
+			sender.sendMessage(REWARD_COMMAND);
 		} else {
 			sender.sendMessage(String.format("Unknown command: %s.", command));
 		}	

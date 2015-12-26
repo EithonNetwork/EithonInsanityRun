@@ -14,15 +14,12 @@ class ScoreDisplay {
 	public Objective _objective;
 	private Score _coinScore;
 	private Score _timeScore;
-	private Player _player;
-	
 	static void initialize() {
 	}
 	
 	public ScoreDisplay(final Player player) {
 		final String playerName = player.getName();
 		ScoreboardManager manager = Bukkit.getScoreboardManager();
-		this._player = player;
 		this._board = manager.getNewScoreboard();
 		player.setScoreboard(this._board);
 		// Objective

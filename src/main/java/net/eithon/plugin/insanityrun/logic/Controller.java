@@ -2,13 +2,11 @@ package net.eithon.plugin.insanityrun.logic;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.UUID;
 
 import net.eithon.library.core.CoreMisc;
 import net.eithon.library.core.PlayerCollection;
 import net.eithon.library.extensions.EithonPlugin;
+import net.eithon.library.facades.VaultFacade;
 import net.eithon.library.json.FileContent;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.time.TimeMisc;
@@ -24,14 +22,16 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 public class Controller {
-	private PlayerCollection<Runner> _runners = new PlayerCollection<Runner>();
+	private PlayerCollection<Arena> _playerArenas = new PlayerCollection<Arena>();
 	private HashMap<String, Arena> _arenas = new HashMap<String, Arena>();
 	private EithonPlugin _eithonPlugin;
 	private BukkitTask _idleTask;
+	private VaultFacade _vaultFacade;
 
 	public Controller(EithonPlugin eithonPlugin) {
 		this._eithonPlugin = eithonPlugin;
-		this._runners = new PlayerCollection<Runner>();
+		this._playerArenas = new PlayerCollection<Arena>();
+		this._vaultFacade = new VaultFacade(eithonPlugin);
 		ScoreDisplay.initialize();
 		TemporaryEffects.initialize(eithonPlugin);
 		SoundMap.initialize(eithonPlugin);
@@ -40,7 +40,7 @@ public class Controller {
 		this._idleTask = null;
 		load();
 	}
-	
+
 	public void delayedSave() {
 		delayedSave(1);
 	}
@@ -137,18 +137,10 @@ public class Controller {
 	}
 
 	void doEverySecond() {
-		Iterator<Entry<UUID, Runner>> iterator = this._runners.entrySet().iterator();
-		while(iterator.hasNext()) {
-			Runner runner = iterator.next().getValue();
-			runner.doRepeatedly();
-			if (runner.hasBeenIdleTooLong()) {
-				Player player = runner.getPlayer();
-				runner.leaveGame();
-				iterator.remove();
-				Config.M.idleKick.sendMessage(player);
-			}
+		for (Arena arena : this._arenas.values()) {
+			arena.doEverySecond();
 		}
-		if (this._runners.size()==0) endRepeatingTask();
+		if (this._playerArenas.size()==0) endRepeatingTask();
 	}
 
 	public void endRepeatingTask() {
@@ -160,84 +152,65 @@ public class Controller {
 	public boolean joinArena(Player player, String arenaName) {
 		Arena arena = getArenaByNameOrInformUser(player, arenaName);
 		if (arena == null) return false;
-		// Does player have enough money to play?
-		/*
-		if (InsanityRun.useVault) {
-			if (InsanityRun.economy.getBalance(player) < InsanityRun.plugin.getConfig().getInt(arenaName + ".charge")) {
-				player.sendMessage(ChatColor.RED + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".notEnoughMoneyText") + InsanityRun.plugin.getConfig().getInt(arenaName + ".charge") + " " + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".payCurrency"));
-				return;
-			}
-			else {
-				// Withdraw money
-				EconomyResponse r = InsanityRun.economy.withdrawPlayer(player, InsanityRun.plugin.getConfig().getInt(arenaName + ".charge"));
-				if(r.transactionSuccess()) {
-					//player.sendMessage(String.format("You were charged %s %s to play and now have %s %s", r.amount, InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".payCurrency"), r.balance, InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".payCurrency")));
-				} else {
-					player.sendMessage(String.format("An error occured: %s", r.errorMessage));
-				}
-			}
-		}
-		 */
+		return joinArena(player, arena);
+	}
 
-		Runner runner = arena.joinGame(player);
-		this._runners.put(player, runner);
+	private boolean joinArena(Player player, Arena arena) {
+		if (arena == null) return false;
+		if (!payOrInformPlayer(player,arena)) return false;
+
+		arena.joinGame(player);
+		this._playerArenas.put(player, arena);
 		if (this._idleTask == null) startRepeatingTask();
 		return true;
 	}
 
-	public boolean leaveGame(Player player) {
-		Runner runner = this._runners.get(player);
-		if (runner == null) return true;
-		leaveGame(runner);
+	public boolean payOrInformPlayer(Player player, Arena arena) {
+		double amount = arena.getPrice();
+		if (amount < 0.01) return true;
+		if (!this._vaultFacade.withdraw(player, amount)) {
+			Config.M.withdrawFailed.sendMessage(player, amount);
+			return false;
+		}
+		Config.M.withdrawSucceeded.sendMessage(player, amount);
 		return true;
+	}
+
+	public boolean leaveGame(Player player) {
+		Arena arena = this._playerArenas.get(player);
+		if (arena == null) return true;
+		return arena.leaveGame(player);
 	}
 
 	public boolean resetGame(Player player) {
-		Runner runner = this._runners.get(player);
-		if (runner == null) return true;
-		runner.teleportToSpawn();
-		return true;
-	}
-
-	private void leaveGame(Runner runner) {
-		runner.leaveGame();
-		this._runners.remove(runner.getPlayer());
-		if (this._runners.size()==0) endRepeatingTask();
+		Arena arena = this._playerArenas.get(player);
+		if (arena == null) return true;
+		return arena.resetGame(player);
 	}
 
 	// When we need to kick all runners, do that with refund
 	public void kickAllRunners() {
-		Iterator<Entry<UUID, Runner>> iterator = this._runners.entrySet().iterator();
-		while (iterator.hasNext()) {
-			Runner runner = iterator.next().getValue();
-			runner.leaveGameWithRefund();
-			iterator.remove();
+		for (Arena arena : this._playerArenas) {
+			arena.kickAllRunners();
 		}
 	}
 
 	public void playerMovedOneBlock(Player player) {
-		final Runner runner = this._runners.get(player);
-		if ((runner == null) || !runner.isInGame()) return;
-
-		// Player frozen?
-		if (runner.isFrozen()) {
-			runner.teleportToLastLocation();
-			return;
-		}
-
-		boolean runnerLeftGame = runner.movedOneBlock(this._eithonPlugin);
-		if (runnerLeftGame) this._runners.remove(player);
+		final Arena arena = this._playerArenas.get(player);
+		if (arena == null) return;
+		arena.playerMovedOneBlock(player, this._eithonPlugin);
 	}
 
 	public void maybeLeaveGameBecauseOfTeleport(Player player) {
-		final Runner runner = this._runners.get(player);
-		if (runner == null) return;
-		runner.maybeLeaveGameBecauseOfTeleport();
+		final Arena arena = this._playerArenas.get(player);
+		if (arena == null) return;
+		arena.maybeLeaveGameBecauseOfTeleport(player);
 	}
 
 	public boolean isInGame(Player player) {
-		Runner runner = this._runners.get(player);
-		return ((runner != null) && runner.isInGame());
+		Arena arena = this._playerArenas.get(player);
+		if (arena == null) return false;
+		return arena.isInGame(player);
 	}
 
 	public boolean verifyArenaNameIsNew(CommandSender sender, String name) {
@@ -249,7 +222,7 @@ public class Controller {
 		Arena arena = getArenaByNameOrInformUser(sender, name);
 		return arena != null;
 	}
-	
+
 	private Arena getArena(String name) {
 		return this._arenas.get(name.toLowerCase());
 	}
@@ -284,7 +257,7 @@ public class Controller {
 	}
 
 	public boolean gotoArena(Player player, String name) {
-		Arena arena = getArenaByNameOrInformUser(player, name);
+		final Arena arena = getArenaByNameOrInformUser(player, name);
 		if (arena == null) return false;
 		player.teleport(arena.getSpawnLocation());
 		return true;
@@ -299,5 +272,27 @@ public class Controller {
 	private void verbose(String method, String format, Object... args) {
 		String message = CoreMisc.safeFormat(format, args);
 		this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.VERBOSE, "Controller.%s: %s", method, message);
+	}
+
+	public void playerLeftArena(Player player) {
+		final Arena arena = this._playerArenas.get(player);
+		if (arena == null) return;
+		arena.playerLeftArena(player);
+		this._playerArenas.remove(player);
+		if (this._playerArenas.size()==0) endRepeatingTask();
+	}
+
+	public boolean priceArena(Player player, String name, double amount) {
+		final Arena arena = getArenaByNameOrInformUser(player, name);
+		if (arena == null) return false;
+		arena.setPrice(amount);
+		return true;
+	}
+
+	public boolean rewardArena(Player player, String name, double amount) {
+		final Arena arena = getArenaByNameOrInformUser(player, name);
+		if (arena == null) return false;
+		arena.setReward(amount);
+		return true;
 	}
 }
