@@ -13,6 +13,7 @@ import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.insanityrun.Config;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -195,10 +196,10 @@ public class Controller {
 		}
 	}
 
-	public void playerMovedOneBlock(Player player) {
+	public void playerMovedOneBlock(Player player, Location location) {
 		final Arena arena = this._playerArenas.get(player);
 		if (arena == null) return;
-		arena.playerMovedOneBlock(player, this._eithonPlugin);
+		arena.playerMovedOneBlock(this._eithonPlugin, player, location);
 	}
 
 	public void maybeLeaveGameBecauseOfTeleport(Player player) {

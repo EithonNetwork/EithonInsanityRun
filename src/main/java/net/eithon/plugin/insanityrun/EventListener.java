@@ -26,7 +26,7 @@ public class EventListener implements Listener {
 	@EventHandler
 	public void onEithonPlayerMoveOneBlockEvent(EithonPlayerMoveOneBlockEvent event) {
 		final Player player = event.getPlayer();
-		this._controller.playerMovedOneBlock(player);
+		this._controller.playerMovedOneBlock(player, event.getToLocation());
 	}
 
 	// Stop players teleporting

@@ -25,6 +25,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.potion.PotionEffectType;
 
 class Runner implements IUuidAndName {
 	private Arena _arena;
@@ -132,11 +133,11 @@ class Runner implements IUuidAndName {
 		}
 	}
 
-	public boolean movedOneBlock(final EithonPlugin plugin) {
+	public boolean movedOneBlock(final EithonPlugin plugin, final Location currentLocation) {
 		if (!this._isInGame) return false;
 		this._scoreKeeper.updateTimeScore();
 		boolean runnerLeftGame = false;
-		final Location currentLocation = updateLocation();
+		updateLocation(currentLocation);
 		final BlockUnderFeet firstBlockUnderFeet = new BlockUnderFeet(currentLocation);
 		final RunnerEffect runnerEffect = firstBlockUnderFeet.getRunnerEffect();
 		if (runnerEffect == RunnerEffect.NONE) return false;
@@ -145,11 +146,12 @@ class Runner implements IUuidAndName {
 			playSound = maybeGetCoin(firstBlockUnderFeet);
 		}
 		if (playSound) SoundMap.playSound(runnerEffect, this._lastLocation);
-		PotionEffectMap.addPotionEffects(runnerEffect, this._player);
 		// Player effects when walking on blocks
 		switch(runnerEffect) {
 		case SLOW:
-			Config.M.effectSlowActivated.sendMessage(this._player);
+			if (!PotionEffectMap.hasPotionEffect(this._player, PotionEffectType.SLOW)) {
+				Config.M.effectSlowActivated.sendMessage(this._player);
+			}
 			break;
 		case JUMP:
 			jump();
@@ -180,6 +182,7 @@ class Runner implements IUuidAndName {
 		default:
 			break;
 		}
+		PotionEffectMap.addPotionEffects(runnerEffect, this._player);
 		return runnerLeftGame;
 	}
 
@@ -193,9 +196,7 @@ class Runner implements IUuidAndName {
 	}
 
 	private void jump() {
-		verbose("jump", "Enter");
-		this._player.setVelocity(this._player.getVelocity().setY(1.5));
-		verbose("jump", "Leave");
+		this._player.setVelocity(this._player.getVelocity().setY(Config.V.jumpSpeed));
 	}
 
 	private void bounceBack() {
@@ -225,10 +226,14 @@ class Runner implements IUuidAndName {
 	}
 
 	private Location updateLocation() {
+		updateLocation(this._player.getLocation());
+		return this._lastLocation;
+	}
+
+	private void updateLocation(Location location) {
 		this._lastLocation = this._player.getLocation();
 		this._lastBlock = this._lastLocation.getBlock();
 		this._lastMoveTime = this._scoreKeeper.getRunTimeInMillisecondsAndUpdateScore();
-		return this._lastLocation;
 	}
 
 	void teleportToSpawn() {
@@ -319,12 +324,14 @@ class Runner implements IUuidAndName {
 	// Player ran over Redstone. End the level and start next or end game
 	private void endLevelOrGame(EithonPlugin plugin) {
 		final long runTimeInMilliseconds = this._scoreKeeper.updateTimeScore();
+		final long coins = this._scoreKeeper.getCoins();
 		this._isInGame = false;
 		PotionEffectMap.removePotionEffects(this._player);
 		WinnerFirework.doIt(this._lastLocation);
 		if (Config.V.broadcastWins) {
-			final double result = runTimeInMilliseconds/1000.0;
-			Config.M.broadcastSuccess.broadcastMessage(this._player.getName(), this._arena.getName(), result);
+			final double runTimeInSeconds = runTimeInMilliseconds/1000.0;
+			Config.M.broadcastSuccess.broadcastMessage(this._player.getName(), this._arena.getName(), 
+					TimeMisc.secondsToString(runTimeInSeconds), coins);
 		}
 		double reward = this._arena.getReward();
 		if (reward >= 0.01) {

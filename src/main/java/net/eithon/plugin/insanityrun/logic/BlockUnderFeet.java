@@ -17,7 +17,7 @@ class BlockUnderFeet {
 	public enum RunnerEffect {
 		NONE, COIN, SLOW, SPEED, JUMP, PUMPKIN_HELMET, FREEZE, BOUNCE, CHECKPOINT, FINISH, WATER, LAVA, DRUNK, BLIND, DARK
 	}
-	
+
 	static void initialize(EithonPlugin plugin) {
 		eithonPlugin = plugin;
 	}
@@ -29,20 +29,32 @@ class BlockUnderFeet {
 	}
 
 	private Block findFirstBlockUnderFeet(final Location feetLocation) {
-		Block feetBlock = feetLocation.getBlock();
+		Block block = feetLocation.getBlock();
+		Location startLocation = feetLocation;
+		switch(block.getType()) {
+		case AIR:
+			startLocation= ignoreSomeAir(feetLocation);
+			break;
+		case WATER:
+		case STATIONARY_WATER:
+		case LAVA:
+		case STATIONARY_LAVA:
+			return block;
+		default:
+			break;
+		}
+		final Block startBlock = startLocation.getBlock();
 		for (int delta = 0; delta <= Config.V.maxTotalDepth; delta++) {
-			Block block = feetBlock.getWorld().getBlockAt(feetBlock.getX(),  feetBlock.getY()-delta, feetBlock.getZ());
+			block = startBlock.getWorld().getBlockAt(startBlock.getX(),  startBlock.getY()-delta, startBlock.getZ());
 			Material blockMaterial = block.getType();
-			verbose("findFirstBlockUnderFeet", "Depth: %d, material: %s", delta, blockMaterial.toString());
 			switch(blockMaterial) {
 			case AIR:
-				if (delta >= Config.V.maxAirDepth) return block;
-				break;
+				return block;
 			case WATER:
 			case STATIONARY_WATER:
 			case LAVA:
 			case STATIONARY_LAVA:
-				return (delta == 0) ? block : null;
+				return null;
 			default:
 				if (translateMaterialToRunnerEffect(block) != RunnerEffect.NONE) return block;
 				break;
@@ -51,10 +63,18 @@ class BlockUnderFeet {
 		return null;
 	}
 
+	public Location ignoreSomeAir(final Location feetLocation) {
+		if (feetLocation.getBlock().getType() != Material.AIR) {
+			return feetLocation;
+		}
+		Location nudgeLocation = feetLocation.clone().add(0.0, -Config.V.maxAirDepth, 0.0);
+		return nudgeLocation;
+	}
+
 	public boolean notFound() { return this._block == null; }
 
 	RunnerEffect getRunnerEffect() { return this._runnerEffect; }
-	
+
 	private RunnerEffect translateMaterialToRunnerEffect(Block block) {
 		if (block == null) return RunnerEffect.NONE;
 		final Material blockMaterial = block.getType();
@@ -85,7 +105,7 @@ class BlockUnderFeet {
 	}
 
 	Block getBlock() { return this._block;}
-	
+
 	private static void verbose(String method, String format, Object... args) {
 		String message = CoreMisc.safeFormat(format, args);
 		eithonPlugin.getEithonLogger().debug(DebugPrintLevel.VERBOSE, "BlockUnderFeet.%s: %s", method, message);

@@ -8,6 +8,13 @@ Based on InsanityRun
 
 ## Releases
 
+### 1.2 ()
+
+* CHANGE: MaxAirDepth is now a double, providing greater detail for settings.
+* CHANGE: Run time is now displayed with format hh:mm:ss.dd
+* CHANGE: Multiple changes to make things smoother.
+* BUG: Was checking the old player block and not the current.
+
 ### 1.1 ()
 
 * NEW: Added price and rewards
