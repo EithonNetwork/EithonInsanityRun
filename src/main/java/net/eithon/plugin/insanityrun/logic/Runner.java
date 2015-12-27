@@ -132,11 +132,11 @@ class Runner implements IUuidAndName {
 		}
 	}
 
-	public boolean movedOneBlock(final EithonPlugin plugin) {
+	public boolean movedOneBlock(final EithonPlugin plugin, final Location currentLocation) {
 		if (!this._isInGame) return false;
 		this._scoreKeeper.updateTimeScore();
 		boolean runnerLeftGame = false;
-		final Location currentLocation = updateLocation();
+		updateLocation(currentLocation);
 		final BlockUnderFeet firstBlockUnderFeet = new BlockUnderFeet(currentLocation);
 		final RunnerEffect runnerEffect = firstBlockUnderFeet.getRunnerEffect();
 		if (runnerEffect == RunnerEffect.NONE) return false;
@@ -225,10 +225,14 @@ class Runner implements IUuidAndName {
 	}
 
 	private Location updateLocation() {
+		updateLocation(this._player.getLocation());
+		return this._lastLocation;
+	}
+
+	private void updateLocation(Location location) {
 		this._lastLocation = this._player.getLocation();
 		this._lastBlock = this._lastLocation.getBlock();
 		this._lastMoveTime = this._scoreKeeper.getRunTimeInMillisecondsAndUpdateScore();
-		return this._lastLocation;
 	}
 
 	void teleportToSpawn() {
