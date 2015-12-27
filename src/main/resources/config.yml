@@ -74,7 +74,7 @@ MaxTotalDepth: 2
 #
 # Max number of air blocks that we will pass through to find a relevant block
 #
-MaxAirDepth: 0
+MaxAirDepth: 1
 
 
 commands:
