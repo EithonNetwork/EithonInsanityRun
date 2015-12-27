@@ -29,11 +29,24 @@ class BlockUnderFeet {
 	}
 
 	private Block findFirstBlockUnderFeet(final Location feetLocation) {
-		final Block startBlock = ignoreSomeAir(feetLocation);
+		Block block = feetLocation.getBlock();
+		Location startLocation = feetLocation;
+		switch(block.getType()) {
+		case AIR:
+			startLocation= ignoreSomeAir(feetLocation);
+			break;
+		case WATER:
+		case STATIONARY_WATER:
+		case LAVA:
+		case STATIONARY_LAVA:
+			return block;
+		default:
+			break;
+		}
+		final Block startBlock = startLocation.getBlock();
 		for (int delta = 0; delta <= Config.V.maxTotalDepth; delta++) {
-			Block block = startBlock.getWorld().getBlockAt(startBlock.getX(),  startBlock.getY()-delta, startBlock.getZ());
+			block = startBlock.getWorld().getBlockAt(startBlock.getX(),  startBlock.getY()-delta, startBlock.getZ());
 			Material blockMaterial = block.getType();
-			verbose("findFirstBlockUnderFeet", "Depth: %d, material: %s", delta, blockMaterial.toString());
 			switch(blockMaterial) {
 			case AIR:
 				return block;
@@ -41,7 +54,7 @@ class BlockUnderFeet {
 			case STATIONARY_WATER:
 			case LAVA:
 			case STATIONARY_LAVA:
-				return (delta == 0) ? block : null;
+				return null;
 			default:
 				if (translateMaterialToRunnerEffect(block) != RunnerEffect.NONE) return block;
 				break;
@@ -50,11 +63,12 @@ class BlockUnderFeet {
 		return null;
 	}
 
-	public Block ignoreSomeAir(final Location feetLocation) {
-		final Block feetBlock = feetLocation.getBlock();
-		if (feetBlock.getType() != Material.AIR) return feetBlock;
-		final Location nudgeDown = feetLocation.add(0.0, -Config.V.maxAirDepth, 0.0);
-		return nudgeDown.getBlock();
+	public Location ignoreSomeAir(final Location feetLocation) {
+		if (feetLocation.getBlock().getType() != Material.AIR) {
+			return feetLocation;
+		}
+		Location nudgeLocation = feetLocation.clone().add(0.0, -Config.V.maxAirDepth, 0.0);
+		return nudgeLocation;
 	}
 
 	public boolean notFound() { return this._block == null; }

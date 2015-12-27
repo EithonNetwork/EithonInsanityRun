@@ -28,6 +28,7 @@ public class Config {
 		public static double maxAirDepth;
 		public static double defaultArenaPrice;
 		public static double defaultArenaReward;
+		public static double jumpSpeed;
 
 		static void load(Configuration config) {
 			useVault = config.getBoolean("UseVault", false);
@@ -41,9 +42,10 @@ public class Config {
 			freezeSeconds = config.getSeconds("FreezeTimeSpan", 2);
 			restartAfterTicks = config.getTicks("RestartTimeSpan", 10);
 			maxTotalDepth =  config.getInt("MaxTotalDepth", 2);
-			double maxAirDepth=  config.getDouble("MaxAirDepth", 0.5);
+			maxAirDepth=  config.getDouble("MaxAirDepth", 0.5);
 			defaultArenaPrice =  config.getDouble("DefaultArenaPrice", 0);
 			defaultArenaReward =  config.getDouble("DefaultArenaReward", 0);
+			jumpSpeed =  config.getDouble("JumpSpeed", 1.5);
 		}
 
 	}
@@ -118,7 +120,7 @@ public class Config {
 					"You are not allowed to teleport in a game.");
 			broadcastSuccess = config.getConfigurableMessage(
 					"messages.BroadcastSuccess", 3, 
-					"Player %s completed arena %s in %s seconds.");
+					"Player %s completed arena %s in %s with %d coins.");
 			withdrawFailed = config.getConfigurableMessage(
 					"messages.WithdrawFailed", 1, 
 					"Could not withdraw %.2f from your account.");

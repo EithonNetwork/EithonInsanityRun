@@ -57,6 +57,13 @@ class PotionEffectMap {
 		}
 	}
 	
+	public static boolean hasPotionEffect(final Player player, PotionEffectType effectType) {
+		for (PotionEffect effect : player.getActivePotionEffects()) {
+			if (effect.getType().equals(effectType)) return true;
+		}
+		return false;
+	}
+	
 	private static void verbose(String method, String format, Object... args) {
 		String message = CoreMisc.safeFormat(format, args);
 		eithonPlugin.getEithonLogger().debug(DebugPrintLevel.VERBOSE, "PotionEffectMap.%s: %s", method, message);

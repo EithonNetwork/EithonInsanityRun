@@ -19,12 +19,12 @@ IdleKickTimeSpan: 4s
 #
 # What is the default arena price to enter a run? (Can be changed individually for each arena).
 #
-DefaultArenaPrice: 0
+DefaultArenaPrice: 0.0
 
 #
 # What is the default arena reward for completing a run? (Can be changed individually for each arena).
 #
-DefaultArenaReward: 0
+DefaultArenaReward: 30.0
 
 #
 # Should we broadcast wins
@@ -75,6 +75,11 @@ MaxTotalDepth: 2
 # Max number of air blocks that we will pass through to find a relevant block
 #
 MaxAirDepth: 0.5
+
+#
+# The speed for a jump
+#
+JumpSpeed: 1.5
 
 
 commands:
@@ -137,8 +142,8 @@ messages:
   TeleportKick: You are not allowed to teleport in a game.
 
   #
-  # Parameters: <player name> (%s), <arena name> (%s), <time in seconds> (%f)
-  BroadcastSuccess: Player %s completed arena %s in %s seconds.
+  # Parameters: <player name> (%s), <arena name> (%s), <time> (%s), <coins> (%d)
+  BroadcastSuccess: Player %s completed arena %s in %s with %d coins.
 
   #
   # Parameters: <amount> (%f)

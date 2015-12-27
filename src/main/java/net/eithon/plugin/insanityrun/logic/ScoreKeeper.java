@@ -46,4 +46,6 @@ public class ScoreKeeper {
 	public void disable() {
 		this._scoreDisplay.disable();
 	}
+
+	public long getCoins() { return this._coins; }
 }
