@@ -128,6 +128,7 @@ public class CommandHandler implements ICommandHandler {
 		double amount = commandParser.getArgumentDouble(0.0);
 
 		if (!this._controller.priceArena(player, name, amount)) return;
+		this._controller.delayedSave();
 		Config.M.priceArena.sendMessage(player, name, amount);
 	}
 
@@ -141,6 +142,7 @@ public class CommandHandler implements ICommandHandler {
 		double amount = commandParser.getArgumentDouble(0.0);
 
 		if (!this._controller.rewardArena(player, name, amount)) return;
+		this._controller.delayedSave();
 		Config.M.rewardArena.sendMessage(player, name, amount);
 	}
 
