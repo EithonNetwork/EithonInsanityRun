@@ -17,7 +17,6 @@ public class Config {
 		public static boolean useVault;
 		public static boolean broadcastWins;
 		public static long idleKickTimeSeconds;
-		public static float blockJumpHeight;
 		public static int potionDuration;
 		public static boolean waterRestartsRun;
 		public static boolean useCheckpoints;
@@ -26,7 +25,7 @@ public class Config {
 		public static long freezeSeconds;
 		public static long restartAfterTicks;
 		public static int maxTotalDepth;
-		public static int maxAirDepth;
+		public static double maxAirDepth;
 		public static double defaultArenaPrice;
 		public static double defaultArenaReward;
 
@@ -42,7 +41,7 @@ public class Config {
 			freezeSeconds = config.getSeconds("FreezeTimeSpan", 2);
 			restartAfterTicks = config.getTicks("RestartTimeSpan", 10);
 			maxTotalDepth =  config.getInt("MaxTotalDepth", 2);
-			maxAirDepth =  config.getInt("MaxAirDepth", 0);
+			double maxAirDepth=  config.getDouble("MaxAirDepth", 0.5);
 			defaultArenaPrice =  config.getDouble("DefaultArenaPrice", 0);
 			defaultArenaReward =  config.getDouble("DefaultArenaReward", 0);
 		}

@@ -8,6 +8,10 @@ Based on InsanityRun
 
 ## Releases
 
+### 1.2 ()
+
+* CHANGE: MaxAirDepth is now a double, providing greater detail for settings.
+
 ### 1.1 ()
 
 * NEW: Added price and rewards

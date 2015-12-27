@@ -17,7 +17,7 @@ class BlockUnderFeet {
 	public enum RunnerEffect {
 		NONE, COIN, SLOW, SPEED, JUMP, PUMPKIN_HELMET, FREEZE, BOUNCE, CHECKPOINT, FINISH, WATER, LAVA, DRUNK, BLIND, DARK
 	}
-	
+
 	static void initialize(EithonPlugin plugin) {
 		eithonPlugin = plugin;
 	}
@@ -29,15 +29,14 @@ class BlockUnderFeet {
 	}
 
 	private Block findFirstBlockUnderFeet(final Location feetLocation) {
-		Block feetBlock = feetLocation.getBlock();
+		final Block startBlock = ignoreSomeAir(feetLocation);
 		for (int delta = 0; delta <= Config.V.maxTotalDepth; delta++) {
-			Block block = feetBlock.getWorld().getBlockAt(feetBlock.getX(),  feetBlock.getY()-delta, feetBlock.getZ());
+			Block block = startBlock.getWorld().getBlockAt(startBlock.getX(),  startBlock.getY()-delta, startBlock.getZ());
 			Material blockMaterial = block.getType();
 			verbose("findFirstBlockUnderFeet", "Depth: %d, material: %s", delta, blockMaterial.toString());
 			switch(blockMaterial) {
 			case AIR:
-				if (delta >= Config.V.maxAirDepth) return block;
-				break;
+				return block;
 			case WATER:
 			case STATIONARY_WATER:
 			case LAVA:
@@ -51,10 +50,17 @@ class BlockUnderFeet {
 		return null;
 	}
 
+	public Block ignoreSomeAir(final Location feetLocation) {
+		final Block feetBlock = feetLocation.getBlock();
+		if (feetBlock.getType() != Material.AIR) return feetBlock;
+		final Location nudgeDown = feetLocation.add(0.0, -Config.V.maxAirDepth, 0.0);
+		return nudgeDown.getBlock();
+	}
+
 	public boolean notFound() { return this._block == null; }
 
 	RunnerEffect getRunnerEffect() { return this._runnerEffect; }
-	
+
 	private RunnerEffect translateMaterialToRunnerEffect(Block block) {
 		if (block == null) return RunnerEffect.NONE;
 		final Material blockMaterial = block.getType();
@@ -85,7 +91,7 @@ class BlockUnderFeet {
 	}
 
 	Block getBlock() { return this._block;}
-	
+
 	private static void verbose(String method, String format, Object... args) {
 		String message = CoreMisc.safeFormat(format, args);
 		eithonPlugin.getEithonLogger().debug(DebugPrintLevel.VERBOSE, "BlockUnderFeet.%s: %s", method, message);
