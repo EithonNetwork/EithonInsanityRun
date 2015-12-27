@@ -138,7 +138,7 @@ messages:
 
   #
   # Parameters: <player name> (%s), <arena name> (%s), <time in seconds> (%f)
-  BroadcastSuccess: Player %s completed arena %s in %.1f seconds.
+  BroadcastSuccess: Player %s completed arena %s in %s seconds.
 
   #
   # Parameters: <amount> (%f)

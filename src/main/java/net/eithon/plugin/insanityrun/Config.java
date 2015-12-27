@@ -118,7 +118,7 @@ public class Config {
 					"You are not allowed to teleport in a game.");
 			broadcastSuccess = config.getConfigurableMessage(
 					"messages.BroadcastSuccess", 3, 
-					"Player %s completed arena %s in %.1f seconds.");
+					"Player %s completed arena %s in %s seconds.");
 			withdrawFailed = config.getConfigurableMessage(
 					"messages.WithdrawFailed", 1, 
 					"Could not withdraw %.2f from your account.");

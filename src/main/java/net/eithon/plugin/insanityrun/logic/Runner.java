@@ -323,8 +323,9 @@ class Runner implements IUuidAndName {
 		PotionEffectMap.removePotionEffects(this._player);
 		WinnerFirework.doIt(this._lastLocation);
 		if (Config.V.broadcastWins) {
-			final double result = runTimeInMilliseconds/1000.0;
-			Config.M.broadcastSuccess.broadcastMessage(this._player.getName(), this._arena.getName(), result);
+			final double runTimeInSeconds = runTimeInMilliseconds/1000.0;
+			Config.M.broadcastSuccess.broadcastMessage(this._player.getName(), this._arena.getName(), 
+					TimeMisc.secondsToString(runTimeInSeconds));
 		}
 		double reward = this._arena.getReward();
 		if (reward >= 0.01) {

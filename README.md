@@ -11,6 +11,7 @@ Based on InsanityRun
 ### 1.2 ()
 
 * CHANGE: MaxAirDepth is now a double, providing greater detail for settings.
+* CHANGE: Run time is now displayed with format hh:mm:ss.dd
 
 ### 1.1 ()
 
