@@ -11,6 +11,7 @@ Based on InsanityRun
 ### 1.3 ()
 
 * NEW: Now uses EithonPlayerMoveHalfBlockEvent
+* BUG: Gold blocks taken where saved with the wrong coordinate.
 
 ### 1.2 ()
 

@@ -283,7 +283,7 @@ class Runner implements IUuidAndName {
 
 	private boolean maybeGetCoin(BlockUnderFeet firstBlockUnderFeet) {
 		verbose("maybeGetCoin", "Enter");
-		Point point = new Point(firstBlockUnderFeet.getBlock().getX(), firstBlockUnderFeet.getBlock().getY());
+		Point point = new Point(firstBlockUnderFeet.getBlock().getX(), firstBlockUnderFeet.getBlock().getZ());
 		if (this._goldBlocks.containsKey(point)) {
 			verbose("maybeGetCoin", "Leave false");
 			return false;
