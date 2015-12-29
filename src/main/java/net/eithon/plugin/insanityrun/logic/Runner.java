@@ -211,14 +211,7 @@ class Runner implements IUuidAndName {
 
 	// Refund money if kicked
 	private void refundMoney() {
-		/*
-		if (InsanityRun.useVault && InsanityRun.plugin.getConfig().getInt(arenaName + ".charge") > 0) {
-			EconomyResponse res = InsanityRun.economy.depositPlayer(playerName, InsanityRun.plugin.getConfig().getInt(arenaName + ".charge"));
-			if(!res.transactionSuccess()) {
-				Bukkit.getConsoleSender().sendMessage(String.format(InsanityRun.gameName + " Vault Deposit - An error occured: %s", res.errorMessage));
-			}
-		}	
-		 */	
+		// TODO: NOT IMPLEMENTED!
 	}
 
 	private boolean lastBlockIsSame(final Block currentBlock) {
@@ -231,7 +224,7 @@ class Runner implements IUuidAndName {
 	}
 
 	private void updateLocation(Location location) {
-		this._lastLocation = this._player.getLocation();
+		this._lastLocation = this._player.getLocation().clone();
 		this._lastBlock = this._lastLocation.getBlock();
 		this._lastMoveTime = this._scoreKeeper.getRunTimeInMillisecondsAndUpdateScore();
 	}
@@ -282,10 +275,10 @@ class Runner implements IUuidAndName {
 		try {
 			this._stopTeleport = false;
 			this._player.teleport(location);
-			updateLocation();
 		} finally {
 			this._stopTeleport = true;
 		}
+		updateLocation();
 	}
 
 	private boolean maybeGetCoin(BlockUnderFeet firstBlockUnderFeet) {
@@ -349,34 +342,6 @@ class Runner implements IUuidAndName {
 			}
 		}, TimeMisc.secondsToTicks(5));
 	}
-
-	/*
-	// Can player afford to play next arena?
-	@SuppressWarnings("deprecation")
-	private static boolean canAfford(iPlayer currentPlayerObject, String arenaName) {
-		Player player = InsanityRun.plugin.getServer().getPlayer(currentPlayerObject.getPlayerName());
-		String playerName = currentPlayerObject.getPlayerName();
-		// Does player have enough money to play?
-		if (InsanityRun.useVault) {
-			if (InsanityRun.economy.getBalance(player.getName()) < InsanityRun.plugin.getConfig().getInt(arenaName + ".charge")) {
-				player.sendMessage(ChatColor.RED + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".notEnoughMoneyText") + InsanityRun.plugin.getConfig().getInt(arenaName + ".charge") + " " + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".payCurrency"));
-				return false;
-			}
-			else {
-				// Withdraw money
-				EconomyResponse r = InsanityRun.economy.withdrawPlayer(playerName, InsanityRun.plugin.getConfig().getInt(arenaName + ".charge"));
-				if(r.transactionSuccess()) {
-					return true;
-				} else {
-					player.sendMessage(String.format("An error occured: %s", r.errorMessage));
-					return false;
-				}
-			}
-		}
-		return false;
-	}
-	 */
-
 
 	private void verbose(String method, String format, Object... args) {
 		String message = CoreMisc.safeFormat(format, args);
