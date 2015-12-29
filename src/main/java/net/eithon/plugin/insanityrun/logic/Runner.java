@@ -25,6 +25,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 class Runner implements IUuidAndName {
@@ -79,8 +80,14 @@ class Runner implements IUuidAndName {
 	public void setIsFrozen(boolean isFrozen) { 
 		this._isFrozen = isFrozen;
 		Player player = getPlayer();
-		if (isFrozen) player.setWalkSpeed(0);
-		else player.setWalkSpeed(0.2f);
+		if (isFrozen) {
+			player.setWalkSpeed(0);
+			player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 128));
+		}
+		else {
+			player.setWalkSpeed(0.2f);
+			player.removePotionEffect(PotionEffectType.JUMP);
+		}
 	}
 
 	public void resetHelmet() {
@@ -129,7 +136,9 @@ class Runner implements IUuidAndName {
 			this._lastMoveTime = currentRuntime;
 			this._lastBlock = currentBlock;
 		} else {
-			this._player.playSound(this._lastLocation, Sound.ENDERMAN_IDLE, 1, 1);
+			if ((currentRuntime - this._lastMoveTime) > Config.V.idleKickTimeSeconds*500) {
+				this._player.playSound(this._lastLocation, Sound.ENDERMAN_IDLE, 1, 1);
+			}
 		}
 	}
 

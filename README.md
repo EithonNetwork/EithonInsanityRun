@@ -11,6 +11,8 @@ Based on InsanityRun
 ### 1.3 ()
 
 * NEW: Now uses EithonPlayerMoveHalfBlockEvent
+* CHANGE: Freeze now means that player can't jump
+* CHANGE: You can now stand idle half the allowed time without hearing any warning noises.
 * BUG: Gold blocks taken where saved with the wrong coordinate.
 
 ### 1.2 ()
