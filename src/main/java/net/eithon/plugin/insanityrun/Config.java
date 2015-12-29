@@ -18,6 +18,7 @@ public class Config {
 		public static boolean broadcastWins;
 		public static long idleKickTimeSeconds;
 		public static int potionDuration;
+		public static int shortTeleportDistance;
 		public static boolean waterRestartsRun;
 		public static boolean useCheckpoints;
 		public static boolean telePortAfterEnd;
@@ -35,6 +36,7 @@ public class Config {
 			idleKickTimeSeconds = config.getSeconds("IdleKickTime", 4);
 			broadcastWins = config.getBoolean("BroadcastWins", false);
 			potionDuration =  config.getInt("PotionDuration", 2);
+			shortTeleportDistance =  config.getInt("ShortTeleportDistance", 5);
 			waterRestartsRun = config.getBoolean("WaterRestartsRun", true);
 			useCheckpoints = config.getBoolean("UseCheckpoints", true);
 			telePortAfterEnd = config.getBoolean("TelePortAfterEnd", true);

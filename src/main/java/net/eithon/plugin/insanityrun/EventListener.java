@@ -35,7 +35,7 @@ public class EventListener implements Listener {
 	public void onTeleport(PlayerTeleportEvent event)
 	{
 		final Player player = event.getPlayer();
-		this._controller.maybeLeaveGameBecauseOfTeleport(player);
+		this._controller.maybeLeaveGameBecauseOfTeleport(player, event.getFrom(), event.getTo());
 	}
 
 	// Stop players teleporting

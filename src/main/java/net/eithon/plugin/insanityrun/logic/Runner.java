@@ -64,10 +64,21 @@ class Runner implements IUuidAndName {
 		teleportToSpawn();
 	}
 
-	public void maybeLeaveGameBecauseOfTeleport() {
+	public void maybeLeaveGameBecauseOfTeleport(Location from, Location to) {
 		if (!this._stopTeleport) return;
+		if (shortTeleport(from.getBlock(), to.getBlock())) return;
 		Config.M.teleportKick.sendMessage(this._player);
 		leaveGame(false, false);
+	}
+
+	private boolean shortTeleport(Block from, Block to) {
+		boolean isShort = (Math.abs(from.getX() - to.getX()) < 5) &&
+		(Math.abs(from.getZ() - to.getZ()) < 5) &&
+		(Math.abs(from.getY() - to.getY()) < 5);
+		
+		if (!isShort) return false;
+		Logger.libraryWarning("EithonInsanityRun: Short teleport from (%s) to (%s)", from.toString(), to.toString());
+		return isShort;
 	}
 
 	public Arena getArena() { return this._arena; }

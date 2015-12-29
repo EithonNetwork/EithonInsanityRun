@@ -202,10 +202,10 @@ public class Controller {
 		arena.playerMoved(this._eithonPlugin, player, location);
 	}
 
-	public void maybeLeaveGameBecauseOfTeleport(Player player) {
+	public void maybeLeaveGameBecauseOfTeleport(Player player, Location from, Location to) {
 		final Arena arena = this._playerArenas.get(player);
 		if (arena == null) return;
-		arena.maybeLeaveGameBecauseOfTeleport(player);
+		arena.maybeLeaveGameBecauseOfTeleport(player, from, to);
 	}
 
 	public boolean isInGame(Player player) {
