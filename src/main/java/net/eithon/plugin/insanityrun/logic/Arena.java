@@ -119,17 +119,17 @@ class Arena extends JsonObject<Arena>{
 		}
 	}
 
-	public void playerMovedOneBlock(EithonPlugin plugin, Player player, Location location) {
+	public void playerMoved(EithonPlugin plugin, Player player, Location location) {
 		final Runner runner = this._runners.get(player);
 		if ((runner == null) || !runner.isInGame()) return;
 
-		runner.movedOneBlock(plugin, location);
+		runner.playerMoved(plugin, location);
 	}
 
-	public void maybeLeaveGameBecauseOfTeleport(Player player) {
+	public void maybeLeaveGameBecauseOfTeleport(Player player, Location from, Location to) {
 		final Runner runner = this._runners.get(player);
 		if ((runner == null) || !runner.isInGame()) return;
-		runner.maybeLeaveGameBecauseOfTeleport();
+		runner.maybeLeaveGameBecauseOfTeleport(from, to);
 	}
 
 	public boolean isInGame(Player player) {

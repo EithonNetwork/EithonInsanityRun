@@ -25,6 +25,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 class Runner implements IUuidAndName {
@@ -63,10 +64,21 @@ class Runner implements IUuidAndName {
 		teleportToSpawn();
 	}
 
-	public void maybeLeaveGameBecauseOfTeleport() {
+	public void maybeLeaveGameBecauseOfTeleport(Location from, Location to) {
 		if (!this._stopTeleport) return;
+		if (shortTeleport(from.getBlock(), to.getBlock())) return;
 		Config.M.teleportKick.sendMessage(this._player);
 		leaveGame(false, false);
+	}
+
+	private boolean shortTeleport(Block from, Block to) {
+		boolean isShort = (Math.abs(from.getX() - to.getX()) < 5) &&
+		(Math.abs(from.getZ() - to.getZ()) < 5) &&
+		(Math.abs(from.getY() - to.getY()) < 5);
+		
+		if (!isShort) return false;
+		Logger.libraryWarning("EithonInsanityRun: Short teleport from (%s) to (%s)", from.toString(), to.toString());
+		return isShort;
 	}
 
 	public Arena getArena() { return this._arena; }
@@ -79,8 +91,14 @@ class Runner implements IUuidAndName {
 	public void setIsFrozen(boolean isFrozen) { 
 		this._isFrozen = isFrozen;
 		Player player = getPlayer();
-		if (isFrozen) player.setWalkSpeed(0);
-		else player.setWalkSpeed(0.2f);
+		if (isFrozen) {
+			player.setWalkSpeed(0);
+			player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 128));
+		}
+		else {
+			player.setWalkSpeed(0.2f);
+			player.removePotionEffect(PotionEffectType.JUMP);
+		}
 	}
 
 	public void resetHelmet() {
@@ -129,11 +147,13 @@ class Runner implements IUuidAndName {
 			this._lastMoveTime = currentRuntime;
 			this._lastBlock = currentBlock;
 		} else {
-			this._player.playSound(this._lastLocation, Sound.ENDERMAN_IDLE, 1, 1);
+			if ((currentRuntime - this._lastMoveTime) > Config.V.idleKickTimeSeconds*500) {
+				this._player.playSound(this._lastLocation, Sound.GHAST_SCREAM, 1, 1);
+			}
 		}
 	}
 
-	public boolean movedOneBlock(final EithonPlugin plugin, final Location currentLocation) {
+	public boolean playerMoved(final EithonPlugin plugin, final Location currentLocation) {
 		if (!this._isInGame) return false;
 		this._scoreKeeper.updateTimeScore();
 		boolean runnerLeftGame = false;
@@ -211,14 +231,7 @@ class Runner implements IUuidAndName {
 
 	// Refund money if kicked
 	private void refundMoney() {
-		/*
-		if (InsanityRun.useVault && InsanityRun.plugin.getConfig().getInt(arenaName + ".charge") > 0) {
-			EconomyResponse res = InsanityRun.economy.depositPlayer(playerName, InsanityRun.plugin.getConfig().getInt(arenaName + ".charge"));
-			if(!res.transactionSuccess()) {
-				Bukkit.getConsoleSender().sendMessage(String.format(InsanityRun.gameName + " Vault Deposit - An error occured: %s", res.errorMessage));
-			}
-		}	
-		 */	
+		// TODO: NOT IMPLEMENTED!
 	}
 
 	private boolean lastBlockIsSame(final Block currentBlock) {
@@ -231,7 +244,7 @@ class Runner implements IUuidAndName {
 	}
 
 	private void updateLocation(Location location) {
-		this._lastLocation = this._player.getLocation();
+		this._lastLocation = this._player.getLocation().clone();
 		this._lastBlock = this._lastLocation.getBlock();
 		this._lastMoveTime = this._scoreKeeper.getRunTimeInMillisecondsAndUpdateScore();
 	}
@@ -282,15 +295,15 @@ class Runner implements IUuidAndName {
 		try {
 			this._stopTeleport = false;
 			this._player.teleport(location);
-			updateLocation();
 		} finally {
 			this._stopTeleport = true;
 		}
+		updateLocation();
 	}
 
 	private boolean maybeGetCoin(BlockUnderFeet firstBlockUnderFeet) {
 		verbose("maybeGetCoin", "Enter");
-		Point point = new Point(firstBlockUnderFeet.getBlock().getX(), firstBlockUnderFeet.getBlock().getY());
+		Point point = new Point(firstBlockUnderFeet.getBlock().getX(), firstBlockUnderFeet.getBlock().getZ());
 		if (this._goldBlocks.containsKey(point)) {
 			verbose("maybeGetCoin", "Leave false");
 			return false;
@@ -349,34 +362,6 @@ class Runner implements IUuidAndName {
 			}
 		}, TimeMisc.secondsToTicks(5));
 	}
-
-	/*
-	// Can player afford to play next arena?
-	@SuppressWarnings("deprecation")
-	private static boolean canAfford(iPlayer currentPlayerObject, String arenaName) {
-		Player player = InsanityRun.plugin.getServer().getPlayer(currentPlayerObject.getPlayerName());
-		String playerName = currentPlayerObject.getPlayerName();
-		// Does player have enough money to play?
-		if (InsanityRun.useVault) {
-			if (InsanityRun.economy.getBalance(player.getName()) < InsanityRun.plugin.getConfig().getInt(arenaName + ".charge")) {
-				player.sendMessage(ChatColor.RED + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".notEnoughMoneyText") + InsanityRun.plugin.getConfig().getInt(arenaName + ".charge") + " " + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".payCurrency"));
-				return false;
-			}
-			else {
-				// Withdraw money
-				EconomyResponse r = InsanityRun.economy.withdrawPlayer(playerName, InsanityRun.plugin.getConfig().getInt(arenaName + ".charge"));
-				if(r.transactionSuccess()) {
-					return true;
-				} else {
-					player.sendMessage(String.format("An error occured: %s", r.errorMessage));
-					return false;
-				}
-			}
-		}
-		return false;
-	}
-	 */
-
 
 	private void verbose(String method, String format, Object... args) {
 		String message = CoreMisc.safeFormat(format, args);

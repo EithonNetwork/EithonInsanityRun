@@ -37,6 +37,11 @@ BroadcastWins: true
 PotionDuration: 2
 
 #
+# Maximum distance for teleport without getting kicked from arena
+#
+ShortTeleportDistance: 5
+
+#
 # Should water restart run?
 #
 WaterRestartsRun: false
@@ -143,7 +148,7 @@ messages:
 
   #
   # Parameters: <player name> (%s), <arena name> (%s), <time> (%s), <coins> (%d)
-  BroadcastSuccess: Player %s completed arena %s in %s with %d coins.
+  BroadcastSuccess: '[color=darkaqua]%s[/color] [color=yellow]completed arena[/color] [color=darkaqua]%s[/color] [color=yellow]in [color=gold]%s[/color] [color=yellow]with [/color][color=gold]%d[/color] [color=yellow]coins.[/color]'
 
   #
   # Parameters: <amount> (%f)

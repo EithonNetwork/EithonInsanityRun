@@ -1,6 +1,7 @@
 package net.eithon.plugin.insanityrun;
 
 import net.eithon.library.extensions.EithonPlugin;
+import net.eithon.library.move.EithonPlayerMoveHalfBlockEvent;
 import net.eithon.library.move.EithonPlayerMoveOneBlockEvent;
 import net.eithon.plugin.insanityrun.logic.Controller;
 import net.eithon.plugin.insanityrun.logic.PlayerLeftArenaEvent;
@@ -24,9 +25,9 @@ public class EventListener implements Listener {
 	}	
 	
 	@EventHandler
-	public void onEithonPlayerMoveOneBlockEvent(EithonPlayerMoveOneBlockEvent event) {
+	public void onEithonPlayerMoveHalfBlockEvent(EithonPlayerMoveHalfBlockEvent event) {
 		final Player player = event.getPlayer();
-		this._controller.playerMovedOneBlock(player, event.getToLocation());
+		this._controller.playerMoved(player, event.getToLocation());
 	}
 
 	// Stop players teleporting
@@ -34,7 +35,7 @@ public class EventListener implements Listener {
 	public void onTeleport(PlayerTeleportEvent event)
 	{
 		final Player player = event.getPlayer();
-		this._controller.maybeLeaveGameBecauseOfTeleport(player);
+		this._controller.maybeLeaveGameBecauseOfTeleport(player, event.getFrom(), event.getTo());
 	}
 
 	// Stop players teleporting

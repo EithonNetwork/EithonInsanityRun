@@ -196,16 +196,16 @@ public class Controller {
 		}
 	}
 
-	public void playerMovedOneBlock(Player player, Location location) {
+	public void playerMoved(Player player, Location location) {
 		final Arena arena = this._playerArenas.get(player);
 		if (arena == null) return;
-		arena.playerMovedOneBlock(this._eithonPlugin, player, location);
+		arena.playerMoved(this._eithonPlugin, player, location);
 	}
 
-	public void maybeLeaveGameBecauseOfTeleport(Player player) {
+	public void maybeLeaveGameBecauseOfTeleport(Player player, Location from, Location to) {
 		final Arena arena = this._playerArenas.get(player);
 		if (arena == null) return;
-		arena.maybeLeaveGameBecauseOfTeleport(player);
+		arena.maybeLeaveGameBecauseOfTeleport(player, from, to);
 	}
 
 	public boolean isInGame(Player player) {
