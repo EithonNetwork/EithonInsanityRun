@@ -133,7 +133,7 @@ class Runner implements IUuidAndName {
 		}
 	}
 
-	public boolean movedOneBlock(final EithonPlugin plugin, final Location currentLocation) {
+	public boolean playerMoved(final EithonPlugin plugin, final Location currentLocation) {
 		if (!this._isInGame) return false;
 		this._scoreKeeper.updateTimeScore();
 		boolean runnerLeftGame = false;

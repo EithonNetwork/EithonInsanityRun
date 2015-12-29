@@ -8,6 +8,10 @@ Based on InsanityRun
 
 ## Releases
 
+### 1.3 ()
+
+* NEW: Now uses EithonPlayerMoveHalfBlockEvent
+
 ### 1.2 ()
 
 * CHANGE: MaxAirDepth is now a double, providing greater detail for settings.
