@@ -148,7 +148,7 @@ class Runner implements IUuidAndName {
 			this._lastBlock = currentBlock;
 		} else {
 			if ((currentRuntime - this._lastMoveTime) > Config.V.idleKickTimeSeconds*500) {
-				this._player.playSound(this._lastLocation, Sound.ENDERMAN_IDLE, 1, 1);
+				this._player.playSound(this._lastLocation, Sound.GHAST_SCREAM, 1, 1);
 			}
 		}
 	}
