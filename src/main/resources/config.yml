@@ -173,4 +173,32 @@ messages:
   #
   # Parameters: -
   EffectSlowActivated: 'SLOWNESS effect applied!'
+
+  #
+  # Parameters: -
+  BounceActivated: Bounce!
+
+  #
+  # Parameters: -
+  FreezeActivated: Freeze!
+
+  #
+  # Parameters: -
+  PumpkinHelmetActivated: Pumpkin helmet!
+
+  #
+  # Parameters: -
+  BounceActivated: Bounce!
+
+  #
+  # Parameters: -
+  BounceActivated: Bounce!
+
+  #
+  # Parameters: -
+  BounceActivated: Bounce!
+
+  #
+  # Parameters: -
+  BounceActivated: Bounce!
   

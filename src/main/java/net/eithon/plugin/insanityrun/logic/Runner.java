@@ -175,15 +175,21 @@ class Runner implements IUuidAndName {
 			break;
 		case JUMP:
 			jump();
+			Config.M.jumpActivated.sendMessage(this._player);
 			break;
 		case PUMPKIN_HELMET:
 			TemporaryEffects.pumpkinHelmet.run(TimeMisc.secondsToTicks(Config.V.pumpkinHelmetSeconds), this);
+			Config.M.pumpkinHelmetActivated.sendMessage(this._player);
 			break;
 		case FREEZE:
-			if (!isFrozen()) TemporaryEffects.freeze.run(TimeMisc.secondsToTicks(Config.V.freezeSeconds), this);
+			if (!isFrozen()) {
+				TemporaryEffects.freeze.run(TimeMisc.secondsToTicks(Config.V.freezeSeconds), this);
+				Config.M.freezeActivated.sendMessage(this._player);
+			}
 			break;
 		case BOUNCE:
 			bounceBack();
+			Config.M.bounceActivated.sendMessage(this._player);
 			break;
 		case CHECKPOINT:
 			if (!atLastCheckPoint()) {
