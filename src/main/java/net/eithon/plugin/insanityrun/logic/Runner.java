@@ -258,7 +258,7 @@ class Runner implements IUuidAndName {
 	void teleportToSpawn() {
 		this._isInGame = true;
 		this._isFrozen = false;
-		this._scoreKeeper.resetCoins();
+		this._scoreKeeper.reset();
 		this._lastMoveTime = 0;
 		this._stopTeleport = true;
 		this._goldBlocks = new HashMap<Point, Location>();
