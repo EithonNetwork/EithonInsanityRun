@@ -79,8 +79,27 @@ public class Config {
 		public static ConfigurableMessage rewardFailed;
 		public static ConfigurableMessage rewarded;
 		public static ConfigurableMessage effectSlowActivated;
+		public static ConfigurableMessage jumpActivated;
+		public static ConfigurableMessage pumpkinHelmetActivated;
+		public static ConfigurableMessage freezeActivated;
+		public static ConfigurableMessage bounceActivated;
 
 		static void load(Configuration config) {
+			bounceActivated = config.getConfigurableMessage(
+					"messages.BounceActivated", 0, 
+					"Bounce!");
+			freezeActivated = config.getConfigurableMessage(
+					"messages.FreezeActivated", 0, 
+					"Freeze!");
+			effectSlowActivated = config.getConfigurableMessage(
+					"messages.EffectSlowActivated", 0, 
+					"SLOWNESS effect applied!");
+			jumpActivated = config.getConfigurableMessage(
+					"messages.JumpActivated", 0, 
+					"Jump!");
+			pumpkinHelmetActivated = config.getConfigurableMessage(
+					"messages.PumpkinHelmetActivated", 0, 
+					"Pumpkin helmet!");
 			playerFinished = config.getConfigurableMessage(
 					"messages.PlayerFinished", 5, 
 					"%s finished %s with %s %s. Time: %s");
@@ -141,9 +160,6 @@ public class Config {
 			rewarded = config.getConfigurableMessage(
 					"messages.Rewarded", 1, 
 					"You were rewarded %.2f for completing the arena.");
-			effectSlowActivated = config.getConfigurableMessage(
-					"messages.EffectSlowActivated", 0, 
-					"SLOWNESS effect applied!");
 		}		
 	}
 

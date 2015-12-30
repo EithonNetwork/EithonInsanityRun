@@ -1,13 +1,13 @@
 name: EithonInsanityRun
 main: net.eithon.plugin.insanityrun.Plugin
-version: 1.3
+version: 1.4
 author: vanbrayne
 description: A Minecraft plugin for insanity run mini game
 depend: [EithonLibrary]
 commands:
   eir:
     description: Control jump pads
-    usage: /eir add | link | remove  | goto | list | join_named_arena | leave | reset | price | reward
+    usage: /eir add | link | remove  | goto | list | leave | reset | price | reward
     permission-message: You don't have <permission>
 permissions:
   eir.*:
@@ -39,7 +39,7 @@ permissions:
     description: Access to /eir goto command
     default: op
   eir.join:
-    description: Access to /eir join command
+    description: Access to /eir join_named_arena command
     default: op
   eir.leave:
     description: Access to /eir leave command
