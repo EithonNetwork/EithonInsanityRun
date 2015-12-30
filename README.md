@@ -11,6 +11,7 @@ Based on InsanityRun
 ### 1.4 (2015-12-30)
 
 * NEW: Configurable player messages for all actions
+* CHANGE: The join command is now not listed in the list of eir sub commands.
 * BUG: The command reset did not reset the time score.
 
 ### 1.3 (2015-12-29)
