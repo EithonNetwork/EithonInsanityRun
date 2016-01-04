@@ -9,11 +9,11 @@ eithon:
   #  2 = MINOR (also minor messages)
   #  3 = VERBOSE (all messages)
   #
-  DebugLevel: 1
+  DebugLevel: 3
 
-StartSpeed: 0.2
+StartSpeed: 1.0
 VelocityChangeSpeed: 0.2
-SpeedIncrease: 0.05
+SpeedIncrease: 0.1
 
 #
 # After how long time should the player be kicked

@@ -43,6 +43,8 @@ public class Racer implements IUuidAndName {
 	protected HashMap<Point, Location> _goldBlocks;
 	protected boolean _stopTeleport;
 	protected PlayerState _playerState;
+	protected boolean _canBeIdle;
+	protected static EithonPlugin eithonPlugin;
 
 	Racer(Player player, Arena arena)
 	{
@@ -50,15 +52,13 @@ public class Racer implements IUuidAndName {
 		this._arena = arena;
 		this._playerState = new PlayerState(player);
 		this._scoreKeeper = new ScoreKeeper(player);
-
-		//player.sendMessage(ChatColor.GREEN + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".readyToPlay"));
-
-		// Construct new player object
+		this._canBeIdle = false;
 		player.setGameMode(GameMode.SURVIVAL);
 		teleportToSpawn();
 	}
 
-	public static void initialize(EithonPlugin eithonPlugin) {
+	public static void initialize(EithonPlugin plugin) {
+		eithonPlugin = plugin;
 		ScoreDisplay.initialize();
 		TemporaryEffects.initialize(eithonPlugin);
 		SoundMap.initialize(eithonPlugin);
@@ -134,11 +134,17 @@ public class Racer implements IUuidAndName {
 	}
 
 	public void doRepeatedly() {
+		updateLocation();
 		final long currentRuntime = this._scoreKeeper.getRunTimeInMillisecondsAndUpdateScore();
 		if (this._isFrozen || !this._isInGame) {
 			this._lastMoveTime = currentRuntime;
 			if (!this._isInGame) return;
 		}
+		if (this._canBeIdle) return;
+		verifyNotIdle(currentRuntime);
+	}
+
+	public void verifyNotIdle(final long currentRuntime) {
 		Block currentBlock = getMovingObject().getLocation().getBlock();
 		if (!lastBlockIsSame(currentBlock)) {
 			this._lastMoveTime = currentRuntime;
@@ -160,58 +166,7 @@ public class Racer implements IUuidAndName {
 		this._scoreKeeper.updateTimeScore();
 		boolean runnerLeftGame = false;
 		updateLocation(currentLocation);
-		final BlockUnderFeet firstBlockUnderFeet = new BlockUnderFeet(currentLocation);
-		final RunnerEffect runnerEffect = firstBlockUnderFeet.getRunnerEffect();
-		if (runnerEffect == RunnerEffect.NONE) return false;
-		boolean playSound = true;
-		if (runnerEffect == RunnerEffect.COIN) {
-			playSound = maybeGetCoin(firstBlockUnderFeet);
-		}
-		if (playSound) SoundMap.playSound(runnerEffect, this._lastLocation);
-		// Player effects when walking on blocks
-		switch(runnerEffect) {
-		case SLOW:
-			if (!PotionEffectMap.hasPotionEffect(this._player, PotionEffectType.SLOW)) {
-				Config.M.effectSlowActivated.sendMessage(this._player);
-			}
-			break;
-		case JUMP:
-			jump();
-			Config.M.jumpActivated.sendMessage(this._player);
-			break;
-		case PUMPKIN_HELMET:
-			TemporaryEffects.pumpkinHelmet.run(TimeMisc.secondsToTicks(Config.V.pumpkinHelmetSeconds), this);
-			Config.M.pumpkinHelmetActivated.sendMessage(this._player);
-			break;
-		case FREEZE:
-			if (this._isFrozen) {
-				TemporaryEffects.freeze.run(TimeMisc.secondsToTicks(Config.V.freezeSeconds), this);
-				Config.M.freezeActivated.sendMessage(this._player);
-			}
-			break;
-		case BOUNCE:
-			bounceBack();
-			Config.M.bounceActivated.sendMessage(this._player);
-			break;
-		case CHECKPOINT:
-			if (!atLastCheckPoint()) {
-				this._lastCheckPoint = this._lastLocation;
-				Config.M.reachedCheckPoint.sendMessage(this._player);
-			}
-			break;
-		case FINISH:
-			endLevelOrGame(plugin);
-			break;
-		case WATER:
-		case LAVA:
-			Config.M.failRestart.sendMessage(this._player);
-			runnerLeftGame = restart(plugin);
-			break;
-		default:
-			break;
-		}
-		PotionEffectMap.addPotionEffects(runnerEffect, this._player);
-		return runnerLeftGame;
+		return false;
 	}
 
 	protected boolean willCollide() {
@@ -222,7 +177,9 @@ public class Racer implements IUuidAndName {
 			location = location.add(getMovingObject().getVelocity());
 			if (i++ > 10) return false;
 		} while (block.equals(location.getBlock()));
-		return (location.getBlock().getType() != Material.AIR);
+		Material material = location.getBlock().getType();
+		if (material != Material.AIR) verbose("willCollide", "material=%s", material.toString());
+		return (material != Material.AIR);
 	}
 
 	protected boolean atLastCheckPoint() {
@@ -315,10 +272,6 @@ public class Racer implements IUuidAndName {
 		}
 	}
 
-	protected Vector getVelocity() {
-		return null;
-	}
-
 	protected boolean maybeGetCoin(BlockUnderFeet firstBlockUnderFeet) {
 		verbose("maybeGetCoin", "Enter");
 		Point point = new Point(firstBlockUnderFeet.getBlock().getX(), firstBlockUnderFeet.getBlock().getZ());
@@ -378,10 +331,9 @@ public class Racer implements IUuidAndName {
 		}, TimeMisc.secondsToTicks(5));
 	}
 
-
 	private void verbose(String method, String format, Object... args) {
 		String message = CoreMisc.safeFormat(format, args);
-		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "EithonInsanityRun: Racer.%s: %s", method, message);
+		eithonPlugin.getEithonLogger().debug(DebugPrintLevel.VERBOSE, "EithonInsanityRun: Racer.%s: %s", method, message);
 	}
 }
 

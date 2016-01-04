@@ -17,6 +17,7 @@ public class PlayerState {
 	
 	public PlayerState(Player player) {
 		this._player = player;
+		save();
 	}
 	
 	public void save() {
@@ -33,10 +34,11 @@ public class PlayerState {
 	
 	public void restore(boolean restoreLocation) {
 		restoreHelmetWorn();
-		if (!this._player.getGameMode().equals(this._gameMode)) this._player.setGameMode(this._gameMode);
+		if ((this._gameMode != null) && !this._player.getGameMode().equals(this._gameMode)) this._player.setGameMode(this._gameMode);
 		if (this._player.getWalkSpeed() != this._walkSpeed) this._player.setWalkSpeed(this._walkSpeed);
 		if (this._player.getFlySpeed() != this._flySpeed) this._player.setFlySpeed(this._flySpeed);
 		if (this._player.isFlying() != this._isFlying) this._player.setFlying(this._isFlying);
+		PotionEffectMap.removePotionEffects(this._player);
 		if (restoreLocation) restoreLocation();
 	}
 
