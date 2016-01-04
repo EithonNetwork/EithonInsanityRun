@@ -34,31 +34,23 @@ class Runner implements IUuidAndName {
 	private ScoreKeeper _scoreKeeper;
 	private boolean _isInGame;
 	private boolean _isFrozen;
-	private Location _rememberLocation;
-	private GameMode _rememberGameMode;
-	private ItemStack _rememberHelmetWorn;
 	private Block _lastBlock;
 	private long _lastMoveTime;
 	private Location _lastLocation;
 	private Location _lastCheckPoint;
 	private HashMap<Point, Location> _goldBlocks;
 	private boolean _stopTeleport;
+	private PlayerState _playerState;
 
 	Runner(Player player, Arena arena)
 	{
 		this._player = player;
+		this._playerState = new PlayerState(player);
 		this._scoreKeeper = new ScoreKeeper(player);
 
 		//player.sendMessage(ChatColor.GREEN + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".readyToPlay"));
 
 		// Construct new player object
-
-		this._rememberLocation = player.getLocation();
-		this._rememberGameMode = player.getGameMode();
-		this._rememberHelmetWorn = player.getInventory().getHelmet();
-		if (this._rememberHelmetWorn == null) {
-			this._rememberHelmetWorn = new ItemStack(Material.AIR, 1, (short) 14);
-		}
 		player.setGameMode(GameMode.SURVIVAL);
 		this._arena = arena;
 		teleportToSpawn();
@@ -102,8 +94,7 @@ class Runner implements IUuidAndName {
 	}
 
 	public void resetHelmet() {
-		Player player = getPlayer();
-		player.getInventory().setHelmet(this._rememberHelmetWorn);
+		this._playerState.restoreHelmetWorn();
 	}
 
 	@Override
@@ -114,9 +105,9 @@ class Runner implements IUuidAndName {
 	@Override
 	public UUID getUniqueId() { return this._player.getUniqueId();	}
 
-	public void leaveGame() { leaveGame(false, true); }
+	public void leaveGame() { leaveGame(false, Config.V.telePortAfterEnd); }
 
-	public void leaveGameWithRefund() { leaveGame(true, true);	}
+	public void leaveGameWithRefund() { leaveGame(true, Config.V.telePortAfterEnd);	}
 
 	private void leaveGame(boolean refund, boolean teleportToStart) {
 		verbose("leaveGame", "Enter refund: %s, teleportToStart: %s",
@@ -127,10 +118,8 @@ class Runner implements IUuidAndName {
 		if (player == null) return;	
 		PotionEffectMap.removePotionEffects(player);
 		player.setFireTicks(0);
-		player.getInventory().setHelmet(this._rememberHelmetWorn);
-		player.setGameMode(this._rememberGameMode);
 		if (refund) refundMoney();
-		if (teleportToStart) teleportToStart();
+		this._playerState.restore(teleportToStart);
 		PlayerLeftArenaEvent e = new PlayerLeftArenaEvent(this.getPlayer(), this._arena);
 		this._player.getServer().getPluginManager().callEvent(e);
 		verbose("leaveGame", "Leave");
@@ -293,10 +282,6 @@ class Runner implements IUuidAndName {
 		}
 	}
 
-	private void teleportToStart() {
-		safeTeleport(this._rememberLocation);
-	}
-
 	private void safeTeleport(final Location location) {
 		try {
 			this._stopTeleport = false;
@@ -361,9 +346,6 @@ class Runner implements IUuidAndName {
 		}
 		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			public void run() {
-				if (Config.V.telePortAfterEnd) {
-					teleportToStart();
-				}
 				leaveGame();
 			}
 		}, TimeMisc.secondsToTicks(5));
