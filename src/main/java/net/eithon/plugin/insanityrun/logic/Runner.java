@@ -14,6 +14,7 @@ import net.eithon.library.plugin.Logger;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.insanityrun.Config;
+import net.eithon.plugin.insanityrun.logic.Arena.GameStyle;
 import net.eithon.plugin.insanityrun.logic.BlockUnderFeet.RunnerEffect;
 
 import org.bukkit.Bukkit;
@@ -22,6 +23,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -44,10 +46,12 @@ class Runner implements IUuidAndName {
 	private PlayerState _playerState;
 	private boolean _controlSpeed;
 	private double _speed;
+	private Minecart _minecart;
 
 	Runner(Player player, Arena arena)
 	{
 		this._player = player;
+		this._arena = arena;
 		this._playerState = new PlayerState(player);
 		this._scoreKeeper = new ScoreKeeper(player);
 		switch (arena.getGameStyle()) {
@@ -64,15 +68,23 @@ class Runner implements IUuidAndName {
 		}
 
 		if (this._controlSpeed) {
-			this._player.setVelocity(this._arena.getSpawnLocation().getDirection().multiply(Config.V.startSpeed));
+			Vector direction = arena.getSpawnLocation().getDirection();
+			if (mustStayOnGround())  {
+				direction = direction.setY(0.0);
+				direction = direction.multiply(1/direction.length());
+			}
+			this._player.setVelocity(direction.multiply(Config.V.startSpeed));
 		}
 
 		//player.sendMessage(ChatColor.GREEN + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".readyToPlay"));
 
 		// Construct new player object
 		player.setGameMode(GameMode.SURVIVAL);
-		this._arena = arena;
 		teleportToSpawn();
+	}
+
+	private boolean mustStayOnGround() {
+		return this._arena.getGameStyle() == GameStyle.KART;
 	}
 
 	public void maybeLeaveGameBecauseOfTeleport(Location from, Location to) {
@@ -292,7 +304,12 @@ class Runner implements IUuidAndName {
 		if (this._controlSpeed) {
 			this._speed = Config.V.startSpeed;
 		}
-		safeTeleport(this._arena.getSpawnLocation());
+		Location spawnLocation = this._arena.getSpawnLocation();
+		safeTeleport(spawnLocation);
+		if (this._arena.getGameStyle() == GameStyle.KART) {
+			Minecart minecart = spawnLocation.getWorld().spawn(spawnLocation, Minecart.class);
+			minecart.setPassenger(this._player);
+		}
 	}
 
 	private void teleportToLastCheckPoint() {
@@ -332,6 +349,11 @@ class Runner implements IUuidAndName {
 	private Vector getVelocity() {
 		try {
 			final Vector currentViewDirection = this._player.getLocation().getDirection().clone();
+			if (mustStayOnGround()) {
+				currentViewDirection.setY(0);
+				if (currentViewDirection.length() == 0.0) return null;
+				currentViewDirection.multiply(1/currentViewDirection.length());
+			}
 			final Vector currentVelocity = this._player.getVelocity().clone();
 			final Vector goalVelocity= currentViewDirection.multiply(this._speed);
 			final Vector velocityDelta = goalVelocity.subtract(currentVelocity);
@@ -346,6 +368,11 @@ class Runner implements IUuidAndName {
 				newVelocity = newVelocity.multiply(this._speed/newSpeed);
 			} else {
 				newVelocity = currentViewDirection.multiply(Config.V.startSpeed);
+			}
+			if (mustStayOnGround()) {
+				newVelocity.setY(0);
+				if (newVelocity.length() == 0.0) return null;
+				newVelocity.multiply(this._speed/newVelocity.length());
 			}
 			return newVelocity;
 		} catch (Exception e) {
@@ -418,6 +445,10 @@ class Runner implements IUuidAndName {
 	private void verbose(String method, String format, Object... args) {
 		String message = CoreMisc.safeFormat(format, args);
 		Logger.libraryDebug(DebugPrintLevel.VERBOSE, "EithonInsanityRun: Runner.%s: %s", method, message);
+	}
+
+	private boolean mustNotBeIdle() {
+		return this._arena.getGameStyle() == GameStyle.INSANITY_RUN;
 	}
 }
 

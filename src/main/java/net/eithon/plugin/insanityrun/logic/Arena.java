@@ -24,13 +24,13 @@ class Arena extends JsonObject<Arena>{
 	private Arena() {
 		this._runners = new PlayerCollection<Runner>();
 		this._price = Config.V.defaultArenaPrice;
+		this._gameStyle = GameStyle.KART;
 		this._reward = Config.V.defaultArenaReward;
 	}
 
 	public Arena(String name, Location spawnLocation) {
 		this();
 		this._name = name;
-		this._gameStyle = GameStyle.KART;
 		this._spawnLocation = new EithonLocation(spawnLocation);
 	}
 

@@ -32,20 +32,16 @@ public class PlayerState {
 	}
 	
 	public void restore(boolean restoreLocation) {
-		restoreGameMode();
 		restoreHelmetWorn();
-		this._player.setWalkSpeed(this._walkSpeed);
-		this._player.setFlySpeed(this._flySpeed);
-		this._player.setFlying(this._isFlying);
+		if (!this._player.getGameMode().equals(this._gameMode)) this._player.setGameMode(this._gameMode);
+		if (this._player.getWalkSpeed() != this._walkSpeed) this._player.setWalkSpeed(this._walkSpeed);
+		if (this._player.getFlySpeed() != this._flySpeed) this._player.setFlySpeed(this._flySpeed);
+		if (this._player.isFlying() != this._isFlying) this._player.setFlying(this._isFlying);
 		if (restoreLocation) restoreLocation();
 	}
 
 	public void restoreLocation() {
 		this._player.teleport(this._location);
-	}
-
-	public void restoreGameMode() {
-		this._player.setGameMode(this._gameMode);
 	}
 
 	public void restoreHelmetWorn() {
