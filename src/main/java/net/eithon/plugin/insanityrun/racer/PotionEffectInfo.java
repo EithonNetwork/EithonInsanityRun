@@ -1,4 +1,4 @@
-package net.eithon.plugin.insanityrun.logic;
+package net.eithon.plugin.insanityrun.racer;
 
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.insanityrun.Config;

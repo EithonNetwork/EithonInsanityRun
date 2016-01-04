@@ -5,15 +5,17 @@ import net.eithon.library.extensions.EithonLocation;
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.json.JsonObject;
 import net.eithon.plugin.insanityrun.Config;
+import net.eithon.plugin.insanityrun.racer.KartDriver;
+import net.eithon.plugin.insanityrun.racer.Racer;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.json.simple.JSONObject;
 
-class Arena extends JsonObject<Arena>{
+public class Arena extends JsonObject<Arena>{
 	public enum GameStyle { INSANITY_RUN, KART, FLY };
 	private String _name;
-	private PlayerCollection<Runner> _runners = new PlayerCollection<Runner>();
+	private PlayerCollection<Racer> _runners = new PlayerCollection<Racer>();
 	private EithonLocation _spawnLocation;
 	private String _linkedToArenaName;
 	private double _price;
@@ -22,7 +24,7 @@ class Arena extends JsonObject<Arena>{
 	private GameStyle _gameStyle;
 
 	private Arena() {
-		this._runners = new PlayerCollection<Runner>();
+		this._runners = new PlayerCollection<Racer>();
 		this._price = Config.V.defaultArenaPrice;
 		this._gameStyle = GameStyle.KART;
 		this._reward = Config.V.defaultArenaReward;
@@ -32,6 +34,10 @@ class Arena extends JsonObject<Arena>{
 		this();
 		this._name = name;
 		this._spawnLocation = new EithonLocation(spawnLocation);
+	}
+
+	public static void initialize(EithonPlugin eithonPlugin) {
+		Racer.initialize(eithonPlugin);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -68,20 +74,27 @@ class Arena extends JsonObject<Arena>{
 		return new Arena().fromJson(json);
 	}
 
-	public Runner joinGame(Player player) {
-		Runner runner = new Runner(player, this);
+	public Racer joinGame(Player player) {
+		Racer runner;
+		switch (this._gameStyle) {
+		case KART:
+			runner = new KartDriver(player, this);
+			break;
+		default:
+			return null;
+		}
 		this._runners.put(player, runner);
 		return runner;
 	}
 
 	public boolean leaveGame(Player player) {
-		Runner runner = this._runners.get(player);
+		Racer runner = this._runners.get(player);
 		if (runner == null) return true;
 		runner.leaveGame();
 		return true;
 	}
 
-	public Runner getRunner(Player player) {
+	public Racer getRunner(Player player) {
 		return this._runners.get(player);
 	}
 	
@@ -103,17 +116,13 @@ class Arena extends JsonObject<Arena>{
 	public String getLinkedToArenaName() { return this._linkedToArenaName; }
 
 	public void doEverySecond() {
-		for (Runner runner : this._runners) {
+		for (Racer runner : this._runners) {
 			runner.doRepeatedly();
-			if (!runner.hasBeenIdleTooLong()) continue;
-			Player player = runner.getPlayer();
-			runner.leaveGame();
-			Config.M.idleKick.sendMessage(player);
 		}
 	}
 
 	public boolean resetGame(Player player) {
-		Runner runner = this._runners.get(player);
+		Racer runner = this._runners.get(player);
 		if (runner == null) return true;
 		runner.teleportToSpawn();
 		return true;
@@ -121,26 +130,26 @@ class Arena extends JsonObject<Arena>{
 
 	// When we need to kick all runners, do that with refund
 	public void kickAllRunners() {
-		for (Runner runner : this._runners) {
+		for (Racer runner : this._runners) {
 			runner.leaveGameWithRefund();
 		}
 	}
 
 	public void playerMoved(EithonPlugin plugin, Player player, Location location) {
-		final Runner runner = this._runners.get(player);
-		if ((runner == null) || !runner.isInGame()) return;
+		final Racer runner = this._runners.get(player);
+		if (runner == null) return;
 
 		runner.playerMoved(plugin, location);
 	}
 
 	public void maybeLeaveGameBecauseOfTeleport(Player player, Location from, Location to) {
-		final Runner runner = this._runners.get(player);
-		if ((runner == null) || !runner.isInGame()) return;
+		final Racer runner = this._runners.get(player);
+		if (runner == null) return;
 		runner.maybeLeaveGameBecauseOfTeleport(from, to);
 	}
 
 	public boolean isInGame(Player player) {
-		final Runner runner = this._runners.get(player);		
+		final Racer runner = this._runners.get(player);		
 		return ((runner != null) && runner.isInGame());
 	}
 

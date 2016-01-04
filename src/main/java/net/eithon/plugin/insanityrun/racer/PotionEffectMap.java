@@ -1,4 +1,4 @@
-package net.eithon.plugin.insanityrun.logic;
+package net.eithon.plugin.insanityrun.racer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,7 +6,7 @@ import java.util.HashMap;
 import net.eithon.library.core.CoreMisc;
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.plugin.Logger.DebugPrintLevel;
-import net.eithon.plugin.insanityrun.logic.BlockUnderFeet.RunnerEffect;
+import net.eithon.plugin.insanityrun.racer.BlockUnderFeet.RunnerEffect;
 
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;

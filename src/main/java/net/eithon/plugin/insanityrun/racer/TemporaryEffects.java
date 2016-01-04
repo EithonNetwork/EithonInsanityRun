@@ -1,4 +1,4 @@
-package net.eithon.plugin.insanityrun.logic;
+package net.eithon.plugin.insanityrun.racer;
 
 import net.eithon.library.core.CoreMisc;
 import net.eithon.library.extensions.EithonPlugin;
@@ -21,7 +21,7 @@ class TemporaryEffects {
 			@Override
 			public Object Do(Object... args) {
 				verbose("pumpkinHelmet Do", "Enter");
-				Runner runner = (Runner) args[0];
+				Racer runner = (Racer) args[0];
 				Player player = runner.getPlayer();
 				player.getInventory().setHelmet(new ItemStack(Material.PUMPKIN, 1, (short) 14));
 				verbose("pumpkinHelmet Do", "Leave");
@@ -30,7 +30,7 @@ class TemporaryEffects {
 			@Override
 			public void Undo(Object doReturnValue, Object... args) {
 				verbose("pumpkinHelmet Undo", "Enter");
-				Runner runner = (Runner) args[0];
+				Racer runner = (Racer) args[0];
 				runner.resetHelmet();
 				verbose("pumpkinHelmet Undo", "Leave");
 			}
@@ -39,7 +39,7 @@ class TemporaryEffects {
 			@Override
 			public Object Do(Object... args) {
 				verbose("freeze Do", "Enter");
-				Runner runner = (Runner) args[0];
+				Racer runner = (Racer) args[0];
 				runner.setIsFrozen(true);
 				verbose("freeze Do", "Leave");
 				return null;
@@ -47,7 +47,7 @@ class TemporaryEffects {
 			@Override
 			public void Undo(Object doReturnValue, Object... args) {
 				verbose("freeze Undo", "Enter");
-				Runner runner = (Runner) args[0];
+				Racer runner = (Racer) args[0];
 				runner.setIsFrozen(false);
 				verbose("freeze Undo", "Leave");
 			}

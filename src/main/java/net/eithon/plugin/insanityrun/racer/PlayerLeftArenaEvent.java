@@ -1,4 +1,6 @@
-package net.eithon.plugin.insanityrun.logic;
+package net.eithon.plugin.insanityrun.racer;
+
+import net.eithon.plugin.insanityrun.logic.Arena;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;

@@ -33,11 +33,7 @@ public class Controller {
 		this._eithonPlugin = eithonPlugin;
 		this._playerArenas = new PlayerCollection<Arena>();
 		this._vaultFacade = new VaultFacade(eithonPlugin);
-		ScoreDisplay.initialize();
-		TemporaryEffects.initialize(eithonPlugin);
-		SoundMap.initialize(eithonPlugin);
-		PotionEffectMap.initialize(eithonPlugin);
-		BlockUnderFeet.initialize(eithonPlugin);
+		Arena.initialize(eithonPlugin);
 		this._idleTask = null;
 		load();
 	}
