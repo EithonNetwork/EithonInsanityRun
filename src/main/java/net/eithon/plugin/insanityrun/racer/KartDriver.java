@@ -24,11 +24,15 @@ public class KartDriver extends Racer {
 		Vector direction = spawnLocation.getDirection();
 		direction = direction.setY(0.0);
 		direction = direction.multiply(1/direction.length());
-		this._minecart = spawnLocation.getWorld().spawn(spawnLocation, Minecart.class);
 	}
 
 	@Override
 	protected Entity getMovingObject() {
+		if (this._minecart == null) {
+			Location spawnLocation = this._arena.getSpawnLocation();
+			this._minecart = spawnLocation.getWorld().spawn(spawnLocation, Minecart.class);
+			this._minecart.setPassenger(this._player);
+		}
 		return this._minecart;
 	}
 
@@ -50,9 +54,12 @@ public class KartDriver extends Racer {
 		return playerLeftGame;
 	}
 
+	@Override
 	protected void updateLocation(Location location) {
 		super.updateLocation(location);
-		getMovingObject().setVelocity(getVelocity());
+		Vector velocity = getVelocity();
+		if (velocity == null) return;
+		getMovingObject().setVelocity(velocity);
 	}
 
 	@Override
@@ -61,7 +68,6 @@ public class KartDriver extends Racer {
 		this._speed = Config.V.startSpeed;
 		Location spawnLocation = this._arena.getSpawnLocation();
 		getMovingObject().setVelocity(spawnLocation.getDirection().multiply(Config.V.startSpeed));
-		this._minecart.setPassenger(this._player);
 	}
 	
 	@Override
