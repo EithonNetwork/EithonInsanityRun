@@ -11,6 +11,10 @@ eithon:
   #
   DebugLevel: 1
 
+StartSpeed: 0.2
+VelocityChangeSpeed: 0.2
+SpeedIncrease: 0.05
+
 #
 # After how long time should the player be kicked
 #

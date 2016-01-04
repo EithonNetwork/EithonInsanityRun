@@ -27,6 +27,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 class Runner implements IUuidAndName {
 	private Arena _arena;
@@ -41,12 +42,30 @@ class Runner implements IUuidAndName {
 	private HashMap<Point, Location> _goldBlocks;
 	private boolean _stopTeleport;
 	private PlayerState _playerState;
+	private boolean _controlSpeed;
+	private double _speed;
 
 	Runner(Player player, Arena arena)
 	{
 		this._player = player;
 		this._playerState = new PlayerState(player);
 		this._scoreKeeper = new ScoreKeeper(player);
+		switch (arena.getGameStyle()) {
+		case INSANITY_RUN:
+			break;
+		case KART:
+			this._player.setFlying(false);
+			this._controlSpeed = true;
+			break;
+		case FLY:
+			this._player.setFlying(true);
+			this._controlSpeed = true;
+			break;
+		}
+
+		if (this._controlSpeed) {
+			this._player.setVelocity(this._arena.getSpawnLocation().getDirection().multiply(Config.V.startSpeed));
+		}
 
 		//player.sendMessage(ChatColor.GREEN + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".readyToPlay"));
 
@@ -65,9 +84,9 @@ class Runner implements IUuidAndName {
 
 	private boolean shortTeleport(Block from, Block to) {
 		boolean isShort = (Math.abs(from.getX() - to.getX()) < 5) &&
-		(Math.abs(from.getZ() - to.getZ()) < 5) &&
-		(Math.abs(from.getY() - to.getY()) < 5);
-		
+				(Math.abs(from.getZ() - to.getZ()) < 5) &&
+				(Math.abs(from.getY() - to.getY()) < 5);
+
 		if (!isShort) return false;
 		Logger.libraryWarning("EithonInsanityRun: Short teleport from (%s) to (%s)", from.toString(), to.toString());
 		return isShort;
@@ -132,6 +151,7 @@ class Runner implements IUuidAndName {
 			if (!this._isInGame) return;
 		}
 		Block currentBlock = this._player.getLocation().getBlock();
+		if (this._controlSpeed) this._speed += Config.V.speedIncrease;
 		if (!lastBlockIsSame(currentBlock)) {
 			this._lastMoveTime = currentRuntime;
 			this._lastBlock = currentBlock;
@@ -201,6 +221,17 @@ class Runner implements IUuidAndName {
 		return runnerLeftGame;
 	}
 
+	private boolean willCollide() {
+		Location location = this._lastLocation.clone();
+		Block block = location.getBlock();
+		int i = 0;
+		do {
+			location = location.add(this._player.getVelocity());
+			if (i++ > 10) return false;
+		} while (block.equals(location.getBlock()));
+		return (location.getBlock().getType() != Material.AIR);
+	}
+
 	private boolean atLastCheckPoint() {
 		return atLastCheckPoint(this._lastLocation);
 	}
@@ -242,6 +273,9 @@ class Runner implements IUuidAndName {
 		this._lastLocation = this._player.getLocation().clone();
 		this._lastBlock = this._lastLocation.getBlock();
 		this._lastMoveTime = this._scoreKeeper.getRunTimeInMillisecondsAndUpdateScore();
+		if (this._controlSpeed) {
+			this._player.setVelocity(getVelocity());
+		}
 	}
 
 	void teleportToSpawn() {
@@ -255,6 +289,9 @@ class Runner implements IUuidAndName {
 		this._player.setFireTicks(0);
 		this._player.setWalkSpeed(0.2f);
 		this._player.setFoodLevel(20);
+		if (this._controlSpeed) {
+			this._speed = Config.V.startSpeed;
+		}
 		safeTeleport(this._arena.getSpawnLocation());
 	}
 
@@ -267,6 +304,16 @@ class Runner implements IUuidAndName {
 		if (location == null) location = this._arena.getSpawnLocation();
 		else revertGoldCoins();
 		safeTeleport(location);
+	}
+
+	private void safeTeleport(final Location location) {
+		try {
+			this._stopTeleport = false;
+			this._player.teleport(location);
+		} finally {
+			this._stopTeleport = true;
+		}
+		updateLocation();
 	}
 
 	public void revertGoldCoins() {
@@ -282,14 +329,31 @@ class Runner implements IUuidAndName {
 		}
 	}
 
-	private void safeTeleport(final Location location) {
+	private Vector getVelocity() {
 		try {
-			this._stopTeleport = false;
-			this._player.teleport(location);
-		} finally {
-			this._stopTeleport = true;
+			final Vector currentViewDirection = this._player.getLocation().getDirection().clone();
+			final Vector currentVelocity = this._player.getVelocity().clone();
+			final Vector goalVelocity= currentViewDirection.multiply(this._speed);
+			final Vector velocityDelta = goalVelocity.subtract(currentVelocity);
+			double length = velocityDelta.length();
+			Vector velocityChange = velocityDelta;
+			if (length > Config.V.velocityChangeSpeed) {
+				velocityChange = velocityDelta.multiply(Config.V.velocityChangeSpeed/length);
+			}
+			Vector newVelocity = currentVelocity.add(velocityChange);
+			final double newSpeed = newVelocity.length();
+			if (newSpeed > 0.0) {
+				newVelocity = newVelocity.multiply(this._speed/newSpeed);
+			} else {
+				newVelocity = currentViewDirection.multiply(Config.V.startSpeed);
+			}
+			return newVelocity;
+		} catch (Exception e) {
+			Logger.libraryError("EithonRace.Runner.getVelocity() failed.\n%s", 
+					e.getMessage());
+			e.printStackTrace();
 		}
-		updateLocation();
+		return null;
 	}
 
 	private boolean maybeGetCoin(BlockUnderFeet firstBlockUnderFeet) {

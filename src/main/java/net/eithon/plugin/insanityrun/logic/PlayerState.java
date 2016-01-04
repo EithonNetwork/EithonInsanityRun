@@ -11,6 +11,9 @@ public class PlayerState {
 	private Location _location;
 	private GameMode _gameMode;
 	private ItemStack _helmetWorn;
+	private float _walkSpeed;
+	private float _flySpeed;
+	private boolean _isFlying;
 	
 	public PlayerState(Player player) {
 		this._player = player;
@@ -20,6 +23,9 @@ public class PlayerState {
 		this._location = this._player.getLocation();
 		this._gameMode = this._player.getGameMode();
 		this._helmetWorn = this._player.getInventory().getHelmet();
+		this._isFlying = this._player.isFlying();
+		this._walkSpeed = this._player.getWalkSpeed();
+		this._flySpeed = this._player.getFlySpeed();
 		if (this._helmetWorn == null) {
 			this._helmetWorn = new ItemStack(Material.AIR, 1, (short) 14);
 		}
@@ -28,6 +34,9 @@ public class PlayerState {
 	public void restore(boolean restoreLocation) {
 		restoreGameMode();
 		restoreHelmetWorn();
+		this._player.setWalkSpeed(this._walkSpeed);
+		this._player.setFlySpeed(this._flySpeed);
+		this._player.setFlying(this._isFlying);
 		if (restoreLocation) restoreLocation();
 	}
 

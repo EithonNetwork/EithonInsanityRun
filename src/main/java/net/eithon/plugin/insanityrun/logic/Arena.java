@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.json.simple.JSONObject;
 
 class Arena extends JsonObject<Arena>{
+	public enum GameStyle { INSANITY_RUN, KART, FLY };
 	private String _name;
 	private PlayerCollection<Runner> _runners = new PlayerCollection<Runner>();
 	private EithonLocation _spawnLocation;
@@ -18,6 +19,7 @@ class Arena extends JsonObject<Arena>{
 	private double _price;
 	private double _reward;
 	private Arena _linkedToArena;
+	private GameStyle _gameStyle;
 
 	private Arena() {
 		this._runners = new PlayerCollection<Runner>();
@@ -28,6 +30,7 @@ class Arena extends JsonObject<Arena>{
 	public Arena(String name, Location spawnLocation) {
 		this();
 		this._name = name;
+		this._gameStyle = GameStyle.KART;
 		this._spawnLocation = new EithonLocation(spawnLocation);
 	}
 
@@ -80,6 +83,10 @@ class Arena extends JsonObject<Arena>{
 
 	public Runner getRunner(Player player) {
 		return this._runners.get(player);
+	}
+	
+	public GameStyle getGameStyle() {
+		return this._gameStyle;
 	}
 
 	public Location getSpawnLocation() { return this._spawnLocation.getLocation(); }

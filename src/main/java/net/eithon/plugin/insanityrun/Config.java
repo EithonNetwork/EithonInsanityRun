@@ -30,6 +30,9 @@ public class Config {
 		public static double defaultArenaPrice;
 		public static double defaultArenaReward;
 		public static double jumpSpeed;
+		public static double startSpeed;
+		public static double velocityChangeSpeed;
+		public static double speedIncrease;
 
 		static void load(Configuration config) {
 			useVault = config.getBoolean("UseVault", false);
@@ -48,6 +51,9 @@ public class Config {
 			defaultArenaPrice =  config.getDouble("DefaultArenaPrice", 0);
 			defaultArenaReward =  config.getDouble("DefaultArenaReward", 0);
 			jumpSpeed =  config.getDouble("JumpSpeed", 1.5);
+			startSpeed = config.getDouble("StartSpeed", 0.2);
+			velocityChangeSpeed = config.getDouble("VelocityChangeSpeed", 0.2);
+			speedIncrease = config.getDouble("SpeedIncrease", 0.1);
 		}
 
 	}
