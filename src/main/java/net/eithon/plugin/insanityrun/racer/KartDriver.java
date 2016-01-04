@@ -16,8 +16,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 public class KartDriver extends Racer {
-	private double _speed;
-	private Minecart _minecart;
+	private Vector _velocity;
 
 	public KartDriver(Player player, Arena arena)
 	{
@@ -31,25 +30,16 @@ public class KartDriver extends Racer {
 
 	@Override
 	protected Entity getMovingObject() {
-		if (this._minecart == null) {
-			Location spawnLocation = this._arena.getSpawnLocation();
-			this._minecart = spawnLocation.getWorld().spawn(spawnLocation, Minecart.class);
-			this._minecart.setPassenger(this._player);
-		}
-		return this._minecart;
+		return this._player;
 	}
 
 	protected void leaveGame(boolean refund, boolean teleportToStart) {
 		super.leaveGame(refund, teleportToStart);
-		if (this._minecart != null) {
-			this._minecart.remove();
-			this._minecart = null;
-		}
 	}
 
 	public void doRepeatedly() {
 		super.doRepeatedly();
-		this._speed += Config.V.speedIncrease;
+		this._velocity = this._velocity.clone().normalize().multiply(this._velocity.length()+Config.V.speedIncrease);
 	}
 
 	@Override
@@ -65,43 +55,37 @@ public class KartDriver extends Racer {
 	@Override
 	protected void updateLocation(Location location) {
 		super.updateLocation(location);
-		this._minecart.setDerailedVelocityMod(getCurrentDirectionWithZeroYComponent().multiply(Config.V.speedIncrease));
+		updateVelocity();
 	}
 
 	@Override
 	public void teleportToSpawn() {
 		super.teleportToSpawn();
 		this._player.setWalkSpeed(0.0F);
-		this._player.setFlySpeed(0.0F);
+		this._player.setFlySpeed(1.0F);
+		this._player.setFlying(true);
 		this._player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 128));
-		this._speed = Config.V.startSpeed;
-		this.getMovingObject().setPassenger(this._player);
-		getMovingObject().setVelocity(getMovingObject().getLocation().getDirection().clone().multiply(Config.V.startSpeed));
+		this._velocity = this._arena.getSpawnLocation().getDirection().clone().setY(0).multiply(Config.V.startSpeed);
+		updateVelocity();
 	}
 	
-	private Vector getVelocity() {
+	private void updateVelocity() {
 		try {
 			Vector currentViewDirection = getCurrentDirectionWithZeroYComponent();
-			if (currentViewDirection == null) currentViewDirection = new Vector(1,0,0);
-			final Vector deltaVelocity = currentViewDirection.clone().multiply(Config.V.speedIncrease);
-			final Vector currentVelocity = getMovingObject().getVelocity().clone();
-			return currentVelocity.add(deltaVelocity);
+			final Vector deltaVelocity = currentViewDirection.multiply(Config.V.velocityChangeSpeed);
+			final Vector currentVelocity = this._velocity;
+			this._velocity = this._velocity.add(deltaVelocity);
+			getMovingObject().setVelocity(this._velocity);
 		} catch (Exception e) {
 			Logger.libraryError("EithonRace.Runner.getVelocity() failed.\n%s", 
 					e.getMessage());
 			e.printStackTrace();
 		}
-		return null;
 	}
 
 	public Vector getCurrentDirectionWithZeroYComponent() {
 		Vector currentViewDirection = this._player.getLocation().getDirection().clone();
-		currentViewDirection.setY(0);
-		if (currentViewDirection.length() == 0.0) {
-			verbose("getVelocity", "Staring up?");
-			return null;
-		}
-		return currentViewDirection.multiply(1.0/currentViewDirection.length());
+		return currentViewDirection.setY(0).normalize();
 	}
 
 	private void verbose(String method, String format, Object... args) {
