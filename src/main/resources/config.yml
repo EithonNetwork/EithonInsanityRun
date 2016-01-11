@@ -172,33 +172,33 @@ messages:
 
   #
   # Parameters: -
-  EffectSlowActivated: 'SLOWNESS effect applied!'
+  EffectSlowActivated: '[actionbar/]Slowed! Hold your horses!'
 
   #
   # Parameters: -
-  BounceActivated: Bounce!
+  BounceActivated: '[actionbar/]Bounce!'
 
   #
   # Parameters: -
-  FreezeActivated: Freeze!
+  FreezeActivated: '[actionbar/]Frozen! Just let it go!'
 
   #
   # Parameters: -
-  PumpkinHelmetActivated: Pumpkin helmet!
+  PumpkinHelmetActivated: '[actionbar/]Pumpkin on your head! Woops...'
 
   #
   # Parameters: -
-  BounceActivated: Bounce!
+  BounceActivated: '[actionbar/]Bounce!'
 
   #
   # Parameters: -
-  BounceActivated: Bounce!
+  BounceActivated: '[actionbar/]Bounce!'
 
   #
   # Parameters: -
-  BounceActivated: Bounce!
+  BounceActivated: '[actionbar/]Bounce!'
 
   #
   # Parameters: -
-  BounceActivated: Bounce!
+  BounceActivated: '[actionbar/]Bounce!'
   

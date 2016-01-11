@@ -83,6 +83,7 @@ public class Config {
 		public static ConfigurableMessage pumpkinHelmetActivated;
 		public static ConfigurableMessage freezeActivated;
 		public static ConfigurableMessage bounceActivated;
+		public static ConfigurableMessage scoreTitle;
 
 		static void load(Configuration config) {
 			bounceActivated = config.getConfigurableMessage(
@@ -160,6 +161,9 @@ public class Config {
 			rewarded = config.getConfigurableMessage(
 					"messages.Rewarded", 1, 
 					"You were rewarded %.2f for completing the arena.");
+			scoreTitle = config.getConfigurableMessage(
+					"messages.ScoreTitle", 2, 
+					"%s: %s");
 		}		
 	}
 
