@@ -15,7 +15,6 @@ import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.insanityrun.Config;
 import net.eithon.plugin.insanityrun.logic.Arena;
-import net.eithon.plugin.insanityrun.racer.BlockUnderFeet.RunnerEffect;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -28,7 +27,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
 public class Racer implements IUuidAndName {
 	protected Arena _arena;
