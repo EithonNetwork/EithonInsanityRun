@@ -201,4 +201,20 @@ messages:
   #
   # Parameters: -
   BounceActivated: '[actionbar/]Bounce!'
+
+  #
+  # Parameters: <arena name> (%s), <player name> (%s)
+  #
+  # Example: Only name: '%2$s'
+  # Example: Truncate arena name after 8 characters, name after 20 characters: '%.8s: %.20s'
+  ScoreTitle: '[color=yellow]%.8s: [color=red]%.15s'
+
+  #
+  # Parameters: -
+  ScoreTime: '[color=blue]Time:'
+
+  #
+  # Parameters: -
+  ScoreCoins: '[color=gold]Coins:'
+  
   

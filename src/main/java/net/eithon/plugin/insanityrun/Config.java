@@ -84,6 +84,8 @@ public class Config {
 		public static ConfigurableMessage freezeActivated;
 		public static ConfigurableMessage bounceActivated;
 		public static ConfigurableMessage scoreTitle;
+		public static ConfigurableMessage scoreTime;
+		public static ConfigurableMessage scoreCoins;
 
 		static void load(Configuration config) {
 			bounceActivated = config.getConfigurableMessage(
@@ -164,6 +166,12 @@ public class Config {
 			scoreTitle = config.getConfigurableMessage(
 					"messages.ScoreTitle", 2, 
 					"%s: %s");
+			scoreTime = config.getConfigurableMessage(
+					"messages.ScoreTime", 0, 
+					"Time:");
+			scoreCoins = config.getConfigurableMessage(
+					"messages.ScoreCoins", 0, 
+					"Coins:");
 		}		
 	}
 

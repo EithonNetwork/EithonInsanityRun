@@ -47,7 +47,7 @@ class Runner implements IUuidAndName {
 	Runner(Player player, Arena arena)
 	{
 		this._player = player;
-		this._scoreKeeper = new ScoreKeeper(player);
+		this._scoreKeeper = new ScoreKeeper(arena.getName(), player);
 
 		//player.sendMessage(ChatColor.GREEN + InsanityRun.plugin.getConfig().getString(InsanityRun.useLanguage + ".readyToPlay"));
 
