@@ -7,10 +7,10 @@ public class ScoreKeeper {
 	private long _startTime;
 	private ScoreDisplay _scoreDisplay;
 	
-	public ScoreKeeper(Player player) {
+	public ScoreKeeper(String arenaName, Player player) {
 		this._coins = 0;
 		this._startTime = System.currentTimeMillis();
-		this._scoreDisplay = new ScoreDisplay(player);
+		this._scoreDisplay = new ScoreDisplay(arenaName, player);
 	}
 
 	public void reset() {

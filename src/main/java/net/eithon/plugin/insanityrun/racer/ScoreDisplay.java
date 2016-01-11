@@ -1,5 +1,7 @@
 package net.eithon.plugin.insanityrun.racer;
 
+import net.eithon.plugin.insanityrun.Config;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -14,10 +16,11 @@ class ScoreDisplay {
 	public Objective _objective;
 	private Score _coinScore;
 	private Score _timeScore;
+	
 	static void initialize() {
 	}
 	
-	public ScoreDisplay(final Player player) {
+	public ScoreDisplay(final String arenaName, final Player player) {
 		final String playerName = player.getName();
 		ScoreboardManager manager = Bukkit.getScoreboardManager();
 		this._board = manager.getNewScoreboard();
@@ -25,30 +28,26 @@ class ScoreDisplay {
 		// Objective
 		this._objective = this._board.registerNewObjective("ignore", "dummy");
 		this._objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-		this._objective.setDisplayName(getDisplayName(playerName));
+		this._objective.setDisplayName(Config.M.scoreTitle.getMessageWithColorCoding(arenaName, playerName));
 		// Coin score
-		this._coinScore = this._objective.getScore(getCoinScore());
+		this._coinScore = this._objective.getScore(getCoinScoreLabel());
 		this._coinScore.setScore(0);
 		// Time score
-		this._timeScore = this._objective.getScore(getTimeScore());
+		this._timeScore = this._objective.getScore(getTimeScoreLabel());
 		this._timeScore.setScore(0);
 	}
 
-	private static String getTimeScore() {
-		return ChatColor.LIGHT_PURPLE + "Time:";
+	private String getTimeScoreLabel() {
+		return Config.M.scoreTime.getMessageWithColorCoding();
 	}
 
-	private static String getCoinScore() {
-		return ChatColor.YELLOW + "Coins:";
-	}
-
-	private static String getDisplayName(final String playerName) {
-		return ChatColor.WHITE + "Insanity Run : " + ChatColor.GREEN + playerName;
+	private String getCoinScoreLabel() {
+		return Config.M.scoreCoins.getMessageWithColorCoding();
 	}
 
 	public void reset() {
-		this._board.resetScores(getCoinScore());
-		this._board.resetScores(getTimeScore());
+		this._board.resetScores(getCoinScoreLabel());
+		this._board.resetScores(getTimeScoreLabel());
 	}
 
 	public void setTimeScore(int score) {

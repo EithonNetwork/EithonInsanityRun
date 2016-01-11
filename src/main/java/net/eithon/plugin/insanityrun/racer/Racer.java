@@ -49,7 +49,7 @@ public class Racer implements IUuidAndName {
 		this._player = player;
 		this._arena = arena;
 		this._playerState = new PlayerState(player);
-		this._scoreKeeper = new ScoreKeeper(player);
+		this._scoreKeeper = new ScoreKeeper(arena.getName(), player);
 		this._canBeIdle = false;
 		player.setGameMode(GameMode.SURVIVAL);
 		teleportToSpawn();

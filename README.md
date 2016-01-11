@@ -8,6 +8,10 @@ Based on InsanityRun
 
 ## Releases
 
+### 1.4.1 (2016-01-11)
+
+* BUG: Score board failed if player names was too long. Solution: Configurable messages for score board. 
+
 ### 1.4 (2015-12-30)
 
 * NEW: Configurable player messages for all actions
