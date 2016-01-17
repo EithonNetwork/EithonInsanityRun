@@ -82,10 +82,14 @@ public class Config {
 		public static ConfigurableMessage jumpActivated;
 		public static ConfigurableMessage pumpkinHelmetActivated;
 		public static ConfigurableMessage freezeActivated;
+		public static ConfigurableMessage speedActivated;
 		public static ConfigurableMessage bounceActivated;
 		public static ConfigurableMessage scoreTitle;
 		public static ConfigurableMessage scoreTime;
 		public static ConfigurableMessage scoreCoins;
+		public static ConfigurableMessage drunkActivated;
+		public static ConfigurableMessage blindActivated;
+		public static ConfigurableMessage darkActivated;
 
 		static void load(Configuration config) {
 			bounceActivated = config.getConfigurableMessage(
@@ -94,6 +98,18 @@ public class Config {
 			freezeActivated = config.getConfigurableMessage(
 					"messages.FreezeActivated", 0, 
 					"Freeze!");
+			speedActivated = config.getConfigurableMessage(
+					"messages.SpeedActivated", 0, 
+					"Speed!");
+			drunkActivated = config.getConfigurableMessage(
+					"messages.DrunkActivated", 0, 
+					"Drunk!");
+			blindActivated = config.getConfigurableMessage(
+					"messages.BlindActivated", 0, 
+					"Blind!");
+			darkActivated = config.getConfigurableMessage(
+					"messages.DarkActivated", 0, 
+					"Dark!");
 			effectSlowActivated = config.getConfigurableMessage(
 					"messages.EffectSlowActivated", 0, 
 					"SLOWNESS effect applied!");

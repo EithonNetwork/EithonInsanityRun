@@ -73,9 +73,9 @@ class Runner implements IUuidAndName {
 
 	private boolean shortTeleport(Block from, Block to) {
 		boolean isShort = (Math.abs(from.getX() - to.getX()) < 5) &&
-		(Math.abs(from.getZ() - to.getZ()) < 5) &&
-		(Math.abs(from.getY() - to.getY()) < 5);
-		
+				(Math.abs(from.getZ() - to.getZ()) < 5) &&
+				(Math.abs(from.getY() - to.getY()) < 5);
+
 		if (!isShort) return false;
 		Logger.libraryWarning("EithonInsanityRun: Short teleport from (%s) to (%s)", from.toString(), to.toString());
 		return isShort;
@@ -168,9 +168,10 @@ class Runner implements IUuidAndName {
 		if (playSound) SoundMap.playSound(runnerEffect, this._lastLocation);
 		// Player effects when walking on blocks
 		switch(runnerEffect) {
-		case SLOW:
-			if (!PotionEffectMap.hasPotionEffect(this._player, PotionEffectType.SLOW)) {
-				Config.M.effectSlowActivated.sendMessage(this._player);
+		case FREEZE:
+			if (!isFrozen()) {
+				TemporaryEffects.freeze.run(TimeMisc.secondsToTicks(Config.V.freezeSeconds), this);
+				Config.M.freezeActivated.sendMessage(this._player);
 			}
 			break;
 		case JUMP:
@@ -180,12 +181,6 @@ class Runner implements IUuidAndName {
 		case PUMPKIN_HELMET:
 			TemporaryEffects.pumpkinHelmet.run(TimeMisc.secondsToTicks(Config.V.pumpkinHelmetSeconds), this);
 			Config.M.pumpkinHelmetActivated.sendMessage(this._player);
-			break;
-		case FREEZE:
-			if (!isFrozen()) {
-				TemporaryEffects.freeze.run(TimeMisc.secondsToTicks(Config.V.freezeSeconds), this);
-				Config.M.freezeActivated.sendMessage(this._player);
-			}
 			break;
 		case BOUNCE:
 			bounceBack();
@@ -209,6 +204,35 @@ class Runner implements IUuidAndName {
 			break;
 		}
 		PotionEffectMap.addPotionEffects(runnerEffect, this._player);
+		switch (runnerEffect) {
+		case SLOW:
+			if (!PotionEffectMap.hasPotionEffect(this._player, PotionEffectType.SLOW)) {
+				Config.M.effectSlowActivated.sendMessage(this._player);
+			}
+			break;
+		case SPEED:
+			if (!PotionEffectMap.hasPotionEffect(this._player, PotionEffectType.SPEED)) {
+				Config.M.speedActivated.sendMessage(this._player);
+			}
+			break;
+		case DRUNK:
+			if (!PotionEffectMap.hasPotionEffect(this._player, PotionEffectType.CONFUSION)) {
+				Config.M.drunkActivated.sendMessage(this._player);
+			}
+			break;
+		case BLIND:
+			if (!PotionEffectMap.hasPotionEffect(this._player, PotionEffectType.BLINDNESS)) {
+				Config.M.blindActivated.sendMessage(this._player);
+			}
+			break;
+		case DARK:
+			if (!PotionEffectMap.hasPotionEffect(this._player, PotionEffectType.NIGHT_VISION)) {
+				Config.M.darkActivated.sendMessage(this._player);
+			}
+			break;
+		default:
+			break;
+		}
 		return runnerLeftGame;
 	}
 
@@ -260,6 +284,7 @@ class Runner implements IUuidAndName {
 		this._isFrozen = false;
 		this._scoreKeeper.reset();
 		this._lastMoveTime = 0;
+		this._lastCheckPoint = null;
 		this._stopTeleport = true;
 		this._goldBlocks = new HashMap<Point, Location>();
 		PotionEffectMap.removePotionEffects(this._player);

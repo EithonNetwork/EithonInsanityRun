@@ -8,6 +8,11 @@ Based on InsanityRun
 
 ## Releases
 
+### 1.4.2 (2016-01-17)
+
+* BUG: Missing messages for some effects.
+* BUG: Last checkpoint was not erased when going back to spawn point.
+
 ### 1.4.1 (2016-01-11)
 
 * BUG: Score board failed if player names was too long. Solution: Configurable messages for score board. 

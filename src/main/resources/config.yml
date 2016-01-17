@@ -184,6 +184,22 @@ messages:
 
   #
   # Parameters: -
+  SpeedActivated: '[actionbar/]Run like the wind!'
+
+  #
+  # Parameters: -
+  DrunkActivated: '[actionbar/]Go easy on those mushrooms!'
+
+  #
+  # Parameters: -
+  BlindActivated: '[actionbar/]Blind as a bat!'
+
+  #
+  # Parameters: -
+  DarkActivated: '[actionbar/]Scary darkness!'
+
+  #
+  # Parameters: -
   PumpkinHelmetActivated: '[actionbar/]Pumpkin on your head! Woops...'
 
   #
@@ -207,7 +223,7 @@ messages:
   #
   # Example: Only name: '%2$s'
   # Example: Truncate arena name after 8 characters, name after 20 characters: '%.8s: %.20s'
-  ScoreTitle: '[color=yellow]%.8s: [color=red]%.15s'
+  ScoreTitle: '[color=darkaqua]Runner: [color=aqua]%2$.20s'
 
   #
   # Parameters: -
