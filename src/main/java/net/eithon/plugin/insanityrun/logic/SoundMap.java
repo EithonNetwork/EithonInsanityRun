@@ -17,18 +17,18 @@ class SoundMap {
 	static void initialize(EithonPlugin plugin) {
 		eithonPlugin = plugin;
 		soundMap = new HashMap<RunnerEffect, SoundInfo>();
-		soundMap.put(RunnerEffect.COIN, new SoundInfo(Sound.ORB_PICKUP));
-		soundMap.put(RunnerEffect.JUMP, new SoundInfo(Sound.EXPLODE));
-		soundMap.put(RunnerEffect.SLOW, new SoundInfo(Sound.FIZZ));
-		soundMap.put(RunnerEffect.SPEED, new SoundInfo(Sound.GLASS));
-		soundMap.put(RunnerEffect.DRUNK, new SoundInfo(Sound.BURP));
-		soundMap.put(RunnerEffect.BLIND, new SoundInfo(Sound.ANVIL_LAND));
-		soundMap.put(RunnerEffect.DARK, new SoundInfo(Sound.ANVIL_LAND));
-		soundMap.put(RunnerEffect.PUMPKIN_HELMET, new SoundInfo(Sound.ENDERMAN_TELEPORT));
-		soundMap.put(RunnerEffect.BOUNCE, new SoundInfo(Sound.SHOOT_ARROW));
-		soundMap.put(RunnerEffect.CHECKPOINT, new SoundInfo(Sound.NOTE_PLING));
-		soundMap.put(RunnerEffect.WATER, new SoundInfo(Sound.SPLASH));
-		soundMap.put(RunnerEffect.LAVA, new SoundInfo(Sound.LAVA));
+		soundMap.put(RunnerEffect.COIN, new SoundInfo(Sound.BLOCK_METAL_HIT));
+		soundMap.put(RunnerEffect.JUMP, new SoundInfo(Sound.ENTITY_GENERIC_EXPLODE));
+		soundMap.put(RunnerEffect.SLOW, new SoundInfo(Sound.BLOCK_FIRE_EXTINGUISH));
+		soundMap.put(RunnerEffect.SPEED, new SoundInfo(Sound.BLOCK_GLASS_BREAK));
+		soundMap.put(RunnerEffect.DRUNK, new SoundInfo(Sound.ENTITY_PLAYER_BURP));
+		soundMap.put(RunnerEffect.BLIND, new SoundInfo(Sound.BLOCK_ANVIL_LAND));
+		soundMap.put(RunnerEffect.DARK, new SoundInfo(Sound.BLOCK_ANVIL_LAND));
+		soundMap.put(RunnerEffect.PUMPKIN_HELMET, new SoundInfo(Sound.ENTITY_ENDERMEN_TELEPORT));
+		soundMap.put(RunnerEffect.BOUNCE, new SoundInfo(Sound.ENTITY_ARROW_SHOOT));
+		soundMap.put(RunnerEffect.CHECKPOINT, new SoundInfo(Sound.BLOCK_NOTE_PLING));
+		soundMap.put(RunnerEffect.WATER, new SoundInfo(Sound.ENTITY_PLAYER_SPLASH));
+		soundMap.put(RunnerEffect.LAVA, new SoundInfo(Sound.BLOCK_LAVA_AMBIENT));
 	}
 	
 	public static void playSound(RunnerEffect runnerEffect, Location location) {
