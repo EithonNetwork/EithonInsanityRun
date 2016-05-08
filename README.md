@@ -8,6 +8,10 @@ Based on InsanityRun
 
 ## Releases
 
+### 1.5 (2016-05-04)
+
+* CHANGE: Upgraded to Spigot 1.0 SOUND enum constants.
+
 ### 1.4.2 (2016-01-17)
 
 * BUG: Missing messages for some effects.

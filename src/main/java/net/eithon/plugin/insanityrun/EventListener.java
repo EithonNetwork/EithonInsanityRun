@@ -2,7 +2,6 @@ package net.eithon.plugin.insanityrun;
 
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.move.EithonPlayerMoveHalfBlockEvent;
-import net.eithon.library.move.EithonPlayerMoveOneBlockEvent;
 import net.eithon.plugin.insanityrun.logic.Controller;
 import net.eithon.plugin.insanityrun.logic.PlayerLeftArenaEvent;
 
