@@ -8,6 +8,10 @@ Based on InsanityRun
 
 ## Releases
 
+### 1.6 (2016-06-30)
+
+* CHANGE: Minecraft 1.10
+
 ### 1.5 (2016-05-04)
 
 * CHANGE: Upgraded to Spigot 1.0 SOUND enum constants.
