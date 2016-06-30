@@ -20,12 +20,10 @@ public class CommandHandler implements ICommandHandler {
 	private static final String REMOVE_COMMAND = "/eir remove <name>";
 	private static final String LINK_COMMAND = "/eir link <name 1> <name 2>";
 
-	private EithonPlugin _eithonPlugin = null;
 	private Controller _controller;
 
 	public CommandHandler(EithonPlugin eithonPlugin, Controller controller) {
 		this._controller = controller;
-		this._eithonPlugin = eithonPlugin;
 	}
 
 	void disable() {

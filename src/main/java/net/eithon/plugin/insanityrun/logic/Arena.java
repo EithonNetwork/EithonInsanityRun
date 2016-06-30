@@ -17,8 +17,6 @@ class Arena extends JsonObject<Arena>{
 	private String _linkedToArenaName;
 	private double _price;
 	private double _reward;
-	private Arena _linkedToArena;
-
 	private Arena() {
 		this._runners = new PlayerCollection<Runner>();
 		this._price = Config.V.defaultArenaPrice;
@@ -85,7 +83,6 @@ class Arena extends JsonObject<Arena>{
 	public Location getSpawnLocation() { return this._spawnLocation.getLocation(); }
 
 	public void linkToArena(Arena arena) {
-		this._linkedToArena = arena;
 		this._linkedToArenaName = arena == null ? null : arena._name;
 	}
 

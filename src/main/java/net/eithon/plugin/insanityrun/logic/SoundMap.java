@@ -2,9 +2,7 @@ package net.eithon.plugin.insanityrun.logic;
 
 import java.util.HashMap;
 
-import net.eithon.library.core.CoreMisc;
 import net.eithon.library.extensions.EithonPlugin;
-import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.plugin.insanityrun.logic.BlockUnderFeet.RunnerEffect;
 
 import org.bukkit.Location;
@@ -38,8 +36,8 @@ class SoundMap {
 		soundInfo.play(location);
 	}
 	
-	private static void verbose(String method, String format, Object... args) {
-		String message = CoreMisc.safeFormat(format, args);
-		eithonPlugin.getEithonLogger().debug(DebugPrintLevel.VERBOSE, "SoundMap.%s: %s", method, message);
+	private static void verbose(String method, String format, Object... args)
+	{
+		eithonPlugin.dbgVerbose("SoundMap", method, format, args);
 	}
 }
