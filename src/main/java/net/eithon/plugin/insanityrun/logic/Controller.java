@@ -73,10 +73,10 @@ public class Controller {
 			arenas.add(arena.toJson());
 		}
 		if ((arenas == null) || (arenas.size() == 0)) {
-			this._eithonPlugin.getEithonLogger().info("No Arenas saved.");
+			this._eithonPlugin.logInfo("No Arenas saved.");
 			return;
 		}
-		this._eithonPlugin.getEithonLogger().info("Saving %d Arenas", arenas.size());
+		this._eithonPlugin.logInfo("Saving %d Arenas", arenas.size());
 		File file = getArenaStorageFile();
 
 		FileContent fileContent = new FileContent("Arena", 1, arenas);
@@ -87,15 +87,15 @@ public class Controller {
 		File file = getArenaStorageFile();
 		FileContent fileContent = FileContent.loadFromFile(file);
 		if (fileContent == null) {
-			this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.MAJOR, "File was empty.");
+			this._eithonPlugin.dbgMajor( "File was empty.");
 			return;			
 		}
 		JSONArray array = (JSONArray) fileContent.getPayload();
 		if ((array == null) || (array.size() == 0)) {
-			this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.MAJOR, "The list of TravelPads was empty.");
+			this._eithonPlugin.dbgMajor( "The list of TravelPads was empty.");
 			return;
 		}
-		this._eithonPlugin.getEithonLogger().info("Restoring %d Arenas from file.", array.size());
+		this._eithonPlugin.logInfo("Restoring %d Arenas from file.", array.size());
 		this._arenas = new HashMap<String, Arena>();
 		for (int i = 0; i < array.size(); i++) {
 			verbose("load", "Loading Arena %d", i);
@@ -103,15 +103,15 @@ public class Controller {
 			try {
 				arena = Arena.getFromJson((JSONObject) array.get(i));
 				if (arena == null) {
-					this._eithonPlugin.getEithonLogger().error("Could not load arena %d (result was null).", i);
+					this._eithonPlugin.logError("Could not load arena %d (result was null).", i);
 					continue;
 				}
-				this._eithonPlugin.getEithonLogger().info("Loaded arena %s", arena.getName());
+				this._eithonPlugin.logInfo("Loaded arena %s", arena.getName());
 				this._arenas.put(arena.getName().toLowerCase(), arena);
 			} catch (Exception e) {
-				this._eithonPlugin.getEithonLogger().error("Could not load arena %d (exception).", i);
-				if (arena != null) this._eithonPlugin.getEithonLogger().error("Could not load arena %s", arena.getName());
-				this._eithonPlugin.getEithonLogger().error("%s", e.toString());
+				this._eithonPlugin.logError("Could not load arena %d (exception).", i);
+				if (arena != null) this._eithonPlugin.logError("Could not load arena %s", arena.getName());
+				this._eithonPlugin.logError("%s", e.toString());
 				throw e;
 			}
 		}

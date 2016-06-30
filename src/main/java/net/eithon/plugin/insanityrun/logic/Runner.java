@@ -374,7 +374,7 @@ class Runner implements IUuidAndName {
 		WinnerFirework.doIt(this._lastLocation);
 		if (Config.V.broadcastWins) {
 			final double runTimeInSeconds = runTimeInMilliseconds/1000.0;
-			Config.M.broadcastSuccess.broadcastMessage(this._player.getName(), this._arena.getName(), 
+			Config.M.broadcastSuccess.broadcastToThisServer(this._player.getName(), this._arena.getName(), 
 					TimeMisc.secondsToString(runTimeInSeconds), coins);
 		}
 		double reward = this._arena.getReward();
