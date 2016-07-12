@@ -3,12 +3,10 @@ package net.eithon.plugin.insanityrun.logic;
 import java.io.File;
 import java.util.HashMap;
 
-import net.eithon.library.core.CoreMisc;
 import net.eithon.library.core.PlayerCollection;
 import net.eithon.library.extensions.EithonPlugin;
 import net.eithon.library.facades.VaultFacade;
 import net.eithon.library.json.FileContent;
-import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.library.time.TimeMisc;
 import net.eithon.plugin.insanityrun.Config;
 
@@ -270,11 +268,6 @@ public class Controller {
 		}
 	}
 
-	private void verbose(String method, String format, Object... args) {
-		String message = CoreMisc.safeFormat(format, args);
-		this._eithonPlugin.getEithonLogger().debug(DebugPrintLevel.VERBOSE, "Controller.%s: %s", method, message);
-	}
-
 	public void playerLeftArena(Player player) {
 		final Arena arena = this._playerArenas.get(player);
 		if (arena == null) return;
@@ -295,5 +288,10 @@ public class Controller {
 		if (arena == null) return false;
 		arena.setReward(amount);
 		return true;
+	}
+	
+	private void verbose(String method, String format, Object... args)
+	{
+		this._eithonPlugin.dbgVerbose("Controller", method, format, args);
 	}
 }

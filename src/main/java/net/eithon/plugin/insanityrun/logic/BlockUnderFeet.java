@@ -1,8 +1,6 @@
 package net.eithon.plugin.insanityrun.logic;
 
-import net.eithon.library.core.CoreMisc;
 import net.eithon.library.extensions.EithonPlugin;
-import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.plugin.insanityrun.Config;
 
 import org.bukkit.Location;
@@ -106,8 +104,7 @@ class BlockUnderFeet {
 
 	Block getBlock() { return this._block;}
 
-	private static void verbose(String method, String format, Object... args) {
-		String message = CoreMisc.safeFormat(format, args);
-		eithonPlugin.getEithonLogger().debug(DebugPrintLevel.VERBOSE, "BlockUnderFeet.%s: %s", method, message);
+	private void verbose(String method, String format, Object... args) {
+		eithonPlugin.dbgVerbose("BlockUnderFeet", method, format, args);	
 	}
 }

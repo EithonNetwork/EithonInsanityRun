@@ -3,9 +3,7 @@ package net.eithon.plugin.insanityrun.logic;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import net.eithon.library.core.CoreMisc;
 import net.eithon.library.extensions.EithonPlugin;
-import net.eithon.library.plugin.Logger.DebugPrintLevel;
 import net.eithon.plugin.insanityrun.logic.BlockUnderFeet.RunnerEffect;
 
 import org.bukkit.entity.Player;
@@ -65,7 +63,6 @@ class PotionEffectMap {
 	}
 	
 	private static void verbose(String method, String format, Object... args) {
-		String message = CoreMisc.safeFormat(format, args);
-		eithonPlugin.getEithonLogger().debug(DebugPrintLevel.VERBOSE, "PotionEffectMap.%s: %s", method, message);
+		eithonPlugin.dbgVerbose("PotionEffectMap", method, format, args);
 	}
 }
