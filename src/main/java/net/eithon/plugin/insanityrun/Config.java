@@ -33,7 +33,7 @@ public class Config {
 
 		static void load(Configuration config) {
 			useVault = config.getBoolean("UseVault", false);
-			idleKickTimeSeconds = config.getSeconds("IdleKickTime", 4);
+			idleKickTimeSeconds = config.getSeconds("IdleKickTimeSpan", 4);
 			broadcastWins = config.getBoolean("BroadcastWins", false);
 			potionDuration =  config.getInt("PotionDuration", 2);
 			shortTeleportDistance =  config.getInt("ShortTeleportDistance", 5);
